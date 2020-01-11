@@ -4,9 +4,15 @@ import requests
 import re
 from dateparser.search import search_dates
 
-# str = 'Melodi Grand Prix 2020 will begin on January 11 and continue every Saturday until February 15. '
-# print(search_dates(str, languages=['en']))
-# print(search_dates('Sanremo 2020 will begin on February 4 and will run each night until February 8.', languages=['en']))
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+events_table = dynamodb.Table('lys_events')
+suggested_events_table = dynamodb.Table('lys_suggested_events')
+
+events = []
+suggested_events = []
+NEXT_SUGGESTED_EVENT_ID = 0
 
 national_selections = {
 	'Albania': 'Festivali i Këngës',
@@ -61,24 +67,27 @@ national_selections = {
 	'United Kingdom': 'Eurovision: You Decide'
 }
 
-events = [{
-	'id': 1,
-	'country': 'Sweden',
-	'name': 'Melodifestivalen',
-	'stage': 'Heat 1',
-	'dateTimeCet': '2020-02-01T20:00:00',
-	'watchLink': 'svtplay.se'
-}]
-suggested_events = [{
-	'id': 0, 
-	'country': 'Sweden', 
-	'name': 'Melodifestivalen',
-	'stage': 'Night 2', 
-	'suggestedDates': ['2020-02-08T20:00:00'],
-	'sourceLink': 'https://eurovoix.com/2020/01/10/sweden-melodifestivalen-2020-running-order-revealed/',
-	'approved': False,
-	'processed': False
-}]
+countries = ['Albania', 'Andorra', 'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Belarus', 'Belgium', 'Bosnia and Herzegovina', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Georgia', 'Germany', 'Greece', 'Hungary', 'Iceland', 'Ireland', 'Israel', 'Italy', 'Latvia', 'Lithuania', 'Luxembourg', 'Malta', 'Moldova', 'Monaco', 'Montenegro', 'Morocco', 'Netherlands', 'North Macedonia', 'Norway', 'Poland', 'Portugal', 'Romania', 'Russia', 'San Marino', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Turkey', 'Ukraine', 'United Kingdom']
+
+
+# events = [{
+# 	'id': 1,
+# 	'country': 'Sweden',
+# 	'name': 'Melodifestivalen',
+# 	'stage': 'Heat 1',
+# 	'dateTimeCet': '2020-02-01T20:00:00',
+# 	'watchLink': 'svtplay.se'
+# }]
+# suggested_events = [{
+# 	'id': 0, 
+# 	'country': 'Sweden', 
+# 	'name': 'Melodifestivalen',
+# 	'stage': 'Night 2', 
+# 	'suggestedDates': ['2020-02-08T20:00:00'],
+# 	'sourceLink': 'https://eurovoix.com/2020/01/10/sweden-melodifestivalen-2020-running-order-revealed/',
+# 	'approved': False,
+# 	'processed': False
+# }]
 event_suggestions_to_be_saved = []
 
 class Story:
@@ -88,7 +97,7 @@ class Story:
 		self.sourceLink = sourceLink
 
 
-class EventSuggestion:
+class EventSuggestion():
 	def __init__(self, country, name, stage, dateTimesCet, sourceLink):
 		self.id = 0
 		self.country = country
@@ -97,7 +106,17 @@ class EventSuggestion:
 		self.dateTimesCet = dateTimesCet
 		self.sourceLink = sourceLink
 		self.accepted = False
-		self.closed = False
+		self.processed = False
+
+	def __iter__(self):
+		yield 'id', self.id
+		yield 'country', self.country
+		yield 'name', self.name
+		yield 'stage', self.stage
+		yield 'dateTimesCet', self.dateTimesCet
+		yield 'sourceLink', self.sourceLink
+		yield 'accepted', self.accepted
+		yield 'processed', self.processed
 
 	def __str__(self):
 		return "{" + str(self.id) + ", " + self.country + ", " + self.name + ", " + self.stage + ", " + str(self.dateTimesCet) + ", " + self.sourceLink + "}"
@@ -306,94 +325,120 @@ def check_for_repetition_expression(sentence):
 
 
 def mark_event_suggestion_for_saving(suggested_event):
+	global NEXT_SUGGESTED_EVENT_ID
+
 	# remove dates for which an event with that name already exists in list
 	suggested_event.dateTimesCet = list(filter(lambda date: not any(e['dateTimeCet'][0:10] == date[0:10] and e['name'] == suggested_event.name for e in events), suggested_event.dateTimesCet))
 	# remove dates for which an event suggestion for that NF was already saved
 	suggested_event.dateTimesCet = list(filter(lambda date: not any(date[0:10] in list(map(lambda date: date[0:10], e['suggestedDates'])) and e['name'] == suggested_event.name for e in suggested_events), suggested_event.dateTimesCet))
 
 	if len(suggested_event.dateTimesCet) > 0:
+		suggested_event.id = NEXT_SUGGESTED_EVENT_ID
+		NEXT_SUGGESTED_EVENT_ID += 1
 		event_suggestions_to_be_saved.append(suggested_event)
 
 
-source = "https://eurovoix.com/feed/"
-xml = requests.get(source).content
-root = ET.fromstring(xml)
+def main(event, context):
+	global events
+	global suggested_events
+	global NEXT_SUGGESTED_EVENT_ID
 
-items = root.find('channel').findall('item')
+	IS_TEST = "isTest" in event
 
-nf_items = filter(lambda item: ('National Selection' in list(map(lambda c: c.text, item.findall('category')))), items)
-stories = []
+	events = events_table.scan()['Items']
+	suggested_events = suggested_events_table.scan()['Items']
+	NEXT_SUGGESTED_EVENT_ID = 0
+	try:
+		NEXT_SUGGESTED_EVENT_ID = max(e['id'] for e in suggested_events)
+	except ValueError:
+		pass
 
-countries = ['Albania', 'Andorra', 'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Belarus', 'Belgium', 'Bosnia and Herzegovina', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Georgia', 'Germany', 'Greece', 'Hungary', 'Iceland', 'Ireland', 'Israel', 'Italy', 'Latvia', 'Lithuania', 'Luxembourg', 'Malta', 'Moldova', 'Monaco', 'Montenegro', 'Morocco', 'Netherlands', 'North Macedonia', 'Norway', 'Poland', 'Portugal', 'Romania', 'Russia', 'San Marino', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Turkey', 'Ukraine', 'United Kingdom']
-event_suggestions = []
+	source = "https://eurovoix.com/feed/"
+	xml = requests.get(source).content
+	root = ET.fromstring(xml)
 
-for item in nf_items:
-	stories.append(create_story(item))
+	items = root.find('channel').findall('item')
 
-for story in stories:
-	sentences = story.text.split('.')
-	sentences = list(filter(lambda s: is_temporal_sentence(s), sentences))
-	events_for_story = []
-	dates = []
+	nf_items = filter(lambda item: ('National Selection' in list(map(lambda c: c.text, item.findall('category')))), items)
+	stories = []
 
-	for sentence in sentences:
-		sentence_events = []
-		sentence_events = check_for_repetition_expression(sentence)
-		for event in sentence_events:
-			event.country = story.country
-			event.name = get_event_for_country(story.country)
-			event.sourceLink = story.sourceLink
-			events_for_story.append(event)
+	event_suggestions = []
 
-		if len(events_for_story) > 0:
-			break
-		else:
-			if any(word in sentence for word in ["reveal", "present", "start"]):
-				continue
+	for item in nf_items:
+		stories.append(create_story(item))
 
-			sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+) and ([0-9]+)'), r'\1 \2, \1 \3,', sentence)
-			found_dates = search_dates(sentence, languages=['en']) or []
+	for story in stories:
+		sentences = story.text.split('.')
+		sentences = list(filter(lambda s: is_temporal_sentence(s), sentences))
+		events_for_story = []
+		dates = []
 
-			# FIltering out the false positives
-			found_dates = list(filter(lambda d: re.match(re.compile("[a-z ]*20[0-9]{2}[a-z ]*"), d[0]) == None, found_dates))
-			found_dates = list(filter(lambda d: not(re.match(re.compile("^[a-zA-Z ]+$"), d[0]) != None and d[1].day == datetime.datetime.now().day), found_dates))
-			found_dates = list(filter(lambda d: d[1] > datetime.datetime.now(), found_dates))
-			dates.extend(list(map(lambda d: d[1].strftime("%Y-%m-%d") + "T20:00:00", found_dates)))
+		for sentence in sentences:
+			sentence_events = []
+			sentence_events = check_for_repetition_expression(sentence)
+			for event in sentence_events:
+				event.country = story.country
+				event.name = get_event_for_country(story.country)
+				event.sourceLink = story.sourceLink
+				events_for_story.append(event)
 
-	if len(events_for_story) == 0:
-		for i in range(1,len(dates)+1):
-			date = dates[i-1]
-			events_for_story.append(EventSuggestion(story.country, get_event_for_country(story.country), "Night " + str(i) if i < len(dates) else "Final", [date], story.sourceLink))
+			if len(events_for_story) > 0:
+				break
+			else:
+				if any(word in sentence for word in ["reveal", "present", "start"]):
+					continue
 
-	event_suggestions.extend(events_for_story)
+				sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+) and ([0-9]+)'), r'\1 \2, \1 \3,', sentence)
+				found_dates = search_dates(sentence, languages=['en']) or []
 
-for event in event_suggestions:
-	mark_event_suggestion_for_saving(event)
-	# print(event)
+				# FIltering out the false positives
+				found_dates = list(filter(lambda d: re.match(re.compile("[a-z ]*20[0-9]{2}[a-z ]*"), d[0]) == None, found_dates))
+				found_dates = list(filter(lambda d: not(re.match(re.compile("^[a-zA-Z ]+$"), d[0]) != None and d[1].day == datetime.datetime.now().day), found_dates))
+				found_dates = list(filter(lambda d: d[1] > datetime.datetime.now(), found_dates))
+				dates.extend(list(map(lambda d: d[1].strftime("%Y-%m-%d") + "T20:00:00", found_dates)))
 
-for event in event_suggestions_to_be_saved:
-	print(event)
+		if len(events_for_story) == 0:
+			for i in range(1,len(dates)+1):
+				date = dates[i-1]
+				events_for_story.append(EventSuggestion(story.country, get_event_for_country(story.country), "Night " + str(i) if i < len(dates) else "Final", [date], story.sourceLink))
 
-# print("***")
-# print("It will take place every Saturday between the 11th of January and the 15th of February")
-# events = check_for_repetition_expression("It will take place every Saturday between the 11th of January and the 15th of February")
-# for event in events:
-# 	print(event)
+		event_suggestions.extend(events_for_story)
 
-# print("***")
-# print("It will take place every Saturday from the 11th of January to the 15th of February")
-# events = check_for_repetition_expression("It will take place every Saturday from the 11th of January to the 15th of February")
-# for event in events:
-# 	print(event)
+	print("Extracted events:")
+	for event in event_suggestions:
+		print(event)
+		mark_event_suggestion_for_saving(event)
+		# print(event)
 
-# print("***")
-# print("It will take place every Saturday, starting on the 11th of January and ending on the 15th of February")
-# events = check_for_repetition_expression("It will take place every Saturday, starting on the 11th of January and ending on the 15th of February")
-# for event in events:
-# 	print(event)
+	print("\nSaved event suggestions:")
+	for event in event_suggestions_to_be_saved:
+		print(event)
+		if(not IS_TEST):
+			try:
+				suggested_events_table.put_item(Item=dict(event))
+			except Exception as e:
+				print("* Unable to save event " + str(event) + " - Exception is " + str(e))
 
-# print("***")
-# print("It will take place every Saturday, starting on the 11th of January and ending on the 15th of February")
-# events = check_for_repetition_expression("It will take place between the 11th of January and the 15th of February every Saturday.")
-# for event in events:
-# 	print(event)
+	# print("***")
+	# print("It will take place every Saturday between the 11th of January and the 15th of February")
+	# events = check_for_repetition_expression("It will take place every Saturday between the 11th of January and the 15th of February")
+	# for event in events:
+	# 	print(event)
+
+	# print("***")
+	# print("It will take place every Saturday from the 11th of January to the 15th of February")
+	# events = check_for_repetition_expression("It will take place every Saturday from the 11th of January to the 15th of February")
+	# for event in events:
+	# 	print(event)
+
+	# print("***")
+	# print("It will take place every Saturday, starting on the 11th of January and ending on the 15th of February")
+	# events = check_for_repetition_expression("It will take place every Saturday, starting on the 11th of January and ending on the 15th of February")
+	# for event in events:
+	# 	print(event)
+
+	# print("***")
+	# print("It will take place every Saturday, starting on the 11th of January and ending on the 15th of February")
+	# events = check_for_repetition_expression("It will take place between the 11th of January and the 15th of February every Saturday.")
+	# for event in events:
+	# 	print(event)
