@@ -122,7 +122,7 @@ def create_story(item):
 
 	content = item.find('{http://purl.org/rss/1.0/modules/content/}encoded').text.replace('<!--[CDATA[', '').replace(']]>', '').replace('\n', '.')
 	try:
-		content = content[0:content.index('<div')]
+		content = content[0:content.index('Source: ')]
 	except ValueError:
 		pass
 	content = re.sub(re.compile('<.*?>'), '', content)
@@ -323,6 +323,8 @@ def mark_event_suggestion_for_saving(suggested_event):
 	suggested_event.dateTimesCet = [date for date in suggested_event.dateTimesCet if not any(e['dateTimeCet'][0:10] == date['date'][0:10] and e['name'] == suggested_event.name for e in events)]
 	# remove dates for which an event suggestion for that NF was already saved
 	suggested_event.dateTimesCet = [date for date in suggested_event.dateTimesCet if not any(date['date'][0:10] in list(map(lambda d: d[0:10], e['dateTimesCet'])) and e['name'] == suggested_event.name for e in suggested_events)]
+	# remove dates for which an event for that NF was already suggested in the current run
+	suggested_event.dateTimesCet = [date for date in suggested_event.dateTimesCet if not any(date['date'][0:10] in list(map(lambda d: d['date'][0:10], e.dateTimesCet)) and e.name == suggested_event.name for e in event_suggestions_to_be_saved)]
 
 	if len(suggested_event.dateTimesCet) > 0:
 		suggested_event.id = NEXT_SUGGESTED_EVENT_ID
@@ -393,9 +395,6 @@ def extract_events(event, is_local_env):
 			if len(events_for_story) > 0:
 				break
 			else:
-				if any(word in sentence for word in ["reveal", "present", "start", "released"]):
-					continue
-
 				sentence = re.sub(re.compile('(January|February|March|April|May|June|July|August|September|October|November|December) ([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*)'), r'\1 \2, \1 \3,', sentence)
 				sentence = re.sub(re.compile('([0-9]+(?:st|nd|rd|th)*) and ([0-9]+(?:st|nd|rd|th)*) (January|February|March|April|May|June|July|August|September|October|November|December)'), r'\1 \3, \2 \3,', sentence)
 				found_dates = search_dates(sentence, languages=['en'], settings={'RETURN_AS_TIMEZONE_AWARE': False}) or []
