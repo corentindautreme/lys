@@ -34,8 +34,8 @@ def generate_event_string(event, twitter_post):
 
 def main(event, context):
 	is_test = "isTest" in event
-	today = datetime.datetime.now()
-	today_morning = today.replace(hour=0, minute=0, second=0).strftime(DATETIME_CET_FORMAT)
+	today = datetime.datetime.now() + datetime.timedelta(hours=1)
+	today_morning = today.strftime(DATETIME_CET_FORMAT)
 	today_evening = today.replace(hour=23, minute=59, second=59).strftime(DATETIME_CET_FORMAT)
 	output = []
 
