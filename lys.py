@@ -95,8 +95,8 @@ def main(event, context):
 	output = []
 
 	if today.hour > 16:
+		# weekly update
 		if today.weekday == 6:
-			# weekly update
 			tomorrow_morning = (today + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0)
 			next_sunday_evening = (today + datetime.timedelta(days=7)).replace(hour=23, minute=59, second=59)
 
@@ -108,36 +108,43 @@ def main(event, context):
 				return
 
 		    # list of (weekday, country) tuples
-			simplified_events = list(map(lambda e: (datetime.strptime(e['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%A"), e['country']), events))
+			simplified_events = list(map(lambda e: (datetime.datetime.strptime(e['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%A"), e['country'] + '*' if e['stage'] == "Final" else ''), events))
+			# indicates if any event is a final
+			includes_final = False
 
 			# weekday -> [country] map
 			calendar = {}
 			for event in simplified_events:
 				day = event[0]
+				country = event[1]
+				if '*' in country:
+					includes_final = True
 				if day not in calendar:
 					calendar[day] = []
-				calendar[day].append(event[1])
+				calendar[day].append(country)
 
 			# building and posting the tweet
-			twitter_post = "Coming up next week:"
+			twitter_post = "Coming up next week" + " (* = final)" if includes_final else "" + ":"
 			for weekday in calendar.keys():
 				# building flag emojis list
 				flags = ""
-				for country in calendar[weekday]:
-					if country not in flag_emojis:
-						output.append("WARNING: no emoji found for country " + country)
-						flags += "(" + country + ")"
-					else:
-						flags += flag_emojis[country]
-				twitter_post += "\n - {}: {}".format(weekday, flags)
+				for c in calendar[weekday]:
+			        final = '*' in c
+			        country = c.replace('*', '')
+			        if country not in flag_emojis:
+			            output.append("WARNING: no emoji found for country " + country)
+			            flags += "(" + country + ")"
+			        else:
+			            flags += flag_emojis[country] + ('*' if '*' in country else '')
+			    twitter_post += "\n - {}: {}".format(weekday, flags)
 
 			if not is_test:
 				api.update_status(twitter_post)
 
 			output.append(twitter_post)
 			return ouput
+	# daily update
 	else: 
-		# daily update
 		today_morning = today.strftime(DATETIME_CET_FORMAT)
 		today_evening = today.replace(hour=23, minute=59, second=59).strftime(DATETIME_CET_FORMAT)
 
