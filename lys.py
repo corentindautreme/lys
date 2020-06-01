@@ -133,9 +133,9 @@ def main(event, context):
                     country = c.replace('*', '')
                     if country not in flag_emojis:
                         output.append("WARNING: no emoji found for country " + country)
-                        flags += "(" + country + ")"
+                        flags += "(" + c + ")"
                     else:
-                        flags += flag_emojis[country] + ('*' if '*' in country else '')
+                        flags += flag_emojis[country] + ('*' if final else '')
                     twitter_post += "\n - {}: {}".format(weekday, flags)
 
             if not is_test:
