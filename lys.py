@@ -6,18 +6,6 @@ from boto3.dynamodb.conditions import Key
 
 import tweepy
 
-consumer_key = os.environ['TWITTER_CONSUMER_KEY']
-consumer_secret = os.environ['TWITTER_CONSUMER_SECRET']
-access_token = os.environ['TWITTER_ACCESS_TOKEN']
-access_token_secret = os.environ['TWITTER_ACCESS_SECRET']
-
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_token_secret)
-api = tweepy.API(auth)
-
-dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('lys_events')
-
 GENERIC_EVENT_STRING = "{} | {} - {} at {} CET. Watch live: {}"
 DATETIME_CET_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
@@ -89,7 +77,78 @@ def generate_event_string(event, twitter_post):
     return twitter_post + GENERIC_EVENT_STRING.format(event['country'], event['name'], event['stage'], time, watchLink)
 
 
+def generate_daily_tweet_thread(events, is_morning):
+    twitter_post = ""
+
+    if is_morning:
+        twitter_post = "TODAY: "
+    else:
+        twitter_post = "TONIGHT: "
+
+    if len(events) == 1:
+        event = events[0]
+        twitter_post = generate_event_string(event, twitter_post)
+        return [twitter_post]
+    else:
+        tweets = []
+        tweets.append(twitter_post + str(len(events)) + " selection shows across Europe{}!".format(" and Australia" if any("Australia" == e['country'] for e in events) else ""))
+
+        for event in events:
+            event_string = generate_event_string(event, twitter_post)
+            tweets.append(event_string)
+
+        return tweets
+
+
+def generate_weekly_tweet_body(events):
+    # list of (weekday, country) tuples
+    simplified_events = list(map(lambda e: (datetime.datetime.strptime(e['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%A"), e['country'] + ('*' if e['stage'] == "Final" else '')), events))
+    # indicates if any event is a final
+    includes_final = False
+    output = []
+
+    # weekday -> [country] map
+    calendar = {}
+    for event in simplified_events:
+        day = event[0]
+        country = event[1]
+        if '*' in country:
+            includes_final = True
+        if day not in calendar:
+            calendar[day] = []
+        calendar[day].append(country)
+
+    # building and posting the tweet
+    twitter_post = "Coming up next week" + (" (* = final)" if includes_final else "") + ":"
+    for weekday in calendar.keys():
+        # building flag emojis list
+        flags = ""
+        for c in calendar[weekday]:
+            final = '*' in c
+            country = c.replace('*', '')
+            if country not in flag_emojis:
+                output.append("WARNING: no emoji found for country " + country)
+                flags += "(" + c + ")"
+            else:
+                flags += flag_emojis[country] + ('*' if final else '')
+        twitter_post += "\n - {}: {}".format(weekday, flags)
+
+    return twitter_post, output
+
+
 def main(event, context):
+    consumer_key = os.environ['TWITTER_CONSUMER_KEY']
+    consumer_secret = os.environ['TWITTER_CONSUMER_SECRET']
+    access_token = os.environ['TWITTER_ACCESS_TOKEN']
+    access_token_secret = os.environ['TWITTER_ACCESS_SECRET']
+
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+    api = tweepy.API(auth)
+
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('lys_events')
+
     is_test = "isTest" in event
     today = datetime.datetime.now() + datetime.timedelta(hours=1)
     output = []
@@ -107,36 +166,7 @@ def main(event, context):
             if len(events) == 0:
                 return
 
-            # list of (weekday, country) tuples
-            simplified_events = list(map(lambda e: (datetime.datetime.strptime(e['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%A"), e['country'] + '*' if e['stage'] == "Final" else ''), events))
-            # indicates if any event is a final
-            includes_final = False
-
-            # weekday -> [country] map
-            calendar = {}
-            for event in simplified_events:
-                day = event[0]
-                country = event[1]
-                if '*' in country:
-                    includes_final = True
-                if day not in calendar:
-                    calendar[day] = []
-                calendar[day].append(country)
-
-            # building and posting the tweet
-            twitter_post = "Coming up next week" + " (* = final)" if includes_final else "" + ":"
-            for weekday in calendar.keys():
-                # building flag emojis list
-                flags = ""
-                for c in calendar[weekday]:
-                    final = '*' in c
-                    country = c.replace('*', '')
-                    if country not in flag_emojis:
-                        output.append("WARNING: no emoji found for country " + country)
-                        flags += "(" + c + ")"
-                    else:
-                        flags += flag_emojis[country] + ('*' if final else '')
-                    twitter_post += "\n - {}: {}".format(weekday, flags)
+            (twitter_post, output) = generate_weekly_tweet(events)
 
             if not is_test:
                 api.update_status(twitter_post)
@@ -155,32 +185,16 @@ def main(event, context):
         if len(events) == 0:
             return
 
-        if today.hour < 12:
-            twitter_post = "TODAY: "
-        else:
-            twitter_post = "TONIGHT: "
+        tweets = generate_daily_tweet_thread(events, is_morning=(today.hour < 12))
 
-        if len(events) == 1:
-            event = events[0]
-            twitter_post = generate_event_string(event, twitter_post)
+        status = None
+        if not is_test:
+            status = api.update_status(tweets[0])
+        output.append(tweets[0])
+
+        for i in range(1,len(tweets)):
             if not is_test:
-                api.update_status(twitter_post)
-            return {"output" : [twitter_post]}
-        else:
-            event_strings = []
-            for event in events:
-                event_string = generate_event_string(event, twitter_post)
-                event_strings.append(event_string)
-
-            twitter_post += str(len(events)) + " selection shows across Europe{}!".format(" and Australia" if any("Australia" == e['country'] for e in events) else "")
-            output.append(twitter_post)
-            if not is_test:
-                status = api.update_status(twitter_post)
-
-            for event_string in event_strings:
-                output.append(event_string)
-                if not is_test:
-                    status = api.update_status(event_string, status.id_str)
+                status = api.update_status(event_string, status.id_str)
+            output.append(tweets[i])
 
         return output
-
