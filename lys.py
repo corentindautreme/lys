@@ -1,9 +1,12 @@
 import datetime
 import os
 
-import boto3
-from boto3.dynamodb.conditions import Key
-
+try:
+    import boto3
+    from boto3.dynamodb.conditions import Key
+except ImportError:
+    pass
+    
 import tweepy
 
 GENERIC_EVENT_STRING = "{} | {} - {} at {} CET. Watch live: {}"
