@@ -197,7 +197,7 @@ def main(event, context):
 
         for i in range(1,len(tweets)):
             if not is_test:
-                status = api.update_status(event_string, status.id_str)
+                status = api.update_status(tweets[i], status.id_str)
             output.append(tweets[i])
 
         return output
