@@ -22,7 +22,7 @@ class DailyTweetsGenerationTest(unittest.TestCase):
         self.assertTrue(tweets[2] == "TODAY: Denmark | Dansk Melodi Grand Prix - Final at 20:00 CET. Watch live: https://tv.dr.dk")
 
 
-    def test_when_multiple_events_and_1_Australian_event_then_should_mention_Australia_in_first_weet(self):
+    def test_when_multiple_events_and_1_Australian_event_then_should_mention_Australia_in_first_tweet(self):
         events = [
             {'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Heat 2', 'dateTimeCet': '2021-02-13T20:00:00', 'watchLink': 'https://svtplay.se'},
             {'country': 'Australia', 'name': 'Australia Decides', 'stage': 'Final', 'dateTimeCet': '2021-02-13T10:30:00', 'watchLink': 'https://facebook.com'},

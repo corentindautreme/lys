@@ -139,6 +139,12 @@ def generate_weekly_tweet_body(events):
     return twitter_post, output
 
 
+def send_tweet(tweepy_api, tweet, reply_status_id=""):
+    if not reply_status_id:
+        return tweepy_api.update_status(tweet)
+    return tweepy_api.update_status(tweet, reply_status_id)
+
+
 def main(event, context):
     consumer_key = os.environ['TWITTER_CONSUMER_KEY']
     consumer_secret = os.environ['TWITTER_CONSUMER_SECRET']
@@ -172,7 +178,7 @@ def main(event, context):
             (twitter_post, output) = generate_weekly_tweet(events)
 
             if not is_test:
-                api.update_status(twitter_post)
+                send_tweet(api, tweet=twitter_post)
 
             output.append(twitter_post)
             return ouput
@@ -192,12 +198,12 @@ def main(event, context):
 
         status = None
         if not is_test:
-            status = api.update_status(tweets[0])
+            send_tweet(api, tweet=tweets[0])
         output.append(tweets[0])
 
         for i in range(1,len(tweets)):
             if not is_test:
-                status = api.update_status(tweets[i], status.id_str)
+                send_tweet(api, tweet=tweets[i], reply_status_id=status.id_str)
             output.append(tweets[i])
 
         return output
