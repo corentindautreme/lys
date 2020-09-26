@@ -12,18 +12,20 @@ Twice a day, this script will be run and search for events (selection shows) hap
 
 There is also a weekly tweet every Sunday afternoon that contains a summary of the week ahead:
 
-> Coming up next week (* = final):<br>
+> 🗓️ COMING UP NEXT WEEK (* = final):<br>
  \- Tuesday: 🇪🇪<br>
  \- Thursday: 🇪🇪<br>
  \- Saturday: 🇸🇪🇳🇴*
 
 And finally, a reminder for every show 5 minutes before they start:
 
-> (format to be defined)
+> 🚨 5 MINUTES REMINDER!<br>
+🇸🇪 Melodifestivalen - Heat 2 (https://svtplay.se/melodifestivalen)
+🇳🇴 Melodi Grand Prix - Final (https://nrk.no/mgp)
 
 ## How does it run?
 
-* There is one script per update (the 2 times daily update, weekly update and 5 minute reminder)
+* There is one script per update (the 2 daily updates, the weekly update and the 5 minute reminder)
 * The scripts are run using AWS Lambdas
 * Events are stored in a AWS DynamoDB table
 
