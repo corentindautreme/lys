@@ -12,7 +12,7 @@ Twice a day, this script will be run and search for events (selection shows) hap
 
 There is also a weekly tweet every Sunday afternoon that contains a summary of the week ahead:
 
-> 🗓️ COMING UP NEXT WEEK (* = final):<br>
+> 🗓️ COMING UP NEXT WEEK (* = final):<br><br>
  \- Tuesday: 🇪🇪<br>
  \- Thursday: 🇪🇪<br>
  \- Saturday: 🇸🇪🇳🇴*
@@ -20,7 +20,7 @@ There is also a weekly tweet every Sunday afternoon that contains a summary of t
 And finally, a reminder for every show 5 minutes before they start:
 
 > 🚨 5 MINUTES REMINDER!<br>
-🇸🇪 Melodifestivalen - Heat 2 (https://svtplay.se/melodifestivalen)<br>
+🇸🇪 Melodifestivalen - Heat 2 (https://svtplay.se/melodifestivalen)<br><br>
 🇳🇴 Melodi Grand Prix - Final (https://nrk.no/mgp)
 
 ## How does it run?
