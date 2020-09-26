@@ -78,12 +78,12 @@ def main(event, context):
 
     status = None
     if not is_test:
-        send_tweet(api, tweet=tweets[0])
+        status = send_tweet(api, tweet=tweets[0])
     output.append(tweets[0])
 
     for i in range(1,len(tweets)):
         if not is_test:
-            send_tweet(api, tweet=tweets[i], reply_status_id=status.id_str)
+            status = send_tweet(api, tweet=tweets[i], reply_status_id=status.id_str)
         output.append(tweets[i])
 
     return output
