@@ -32,8 +32,8 @@ jobs:
     - name: Package (daily, weekly)
       if: success()
       run: |
-        zip -ur lys_daily.zip lys_daily.py
-        zip -ur lys_weekly.zip lys_weekly.py
+        zip -ur lys_daily.zip lys_daily.py common.py
+        zip -ur lys_weekly.zip lys_weekly.py common.py
         cd lib
         zip -ur ../lys_daily.zip *
         zip -ur ../lys_weekly.zip *
