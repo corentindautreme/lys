@@ -28,7 +28,7 @@ def generate_weekly_tweet_body(events):
         calendar[day].append(country)
 
     # building and posting the tweet
-    twitter_post = "Coming up next week" + (" (* = final)" if includes_final else "") + ":"
+    twitter_post = "\U0001F5D3 COMING UP NEXT WEEK" + (" (* = final)" if includes_final else "") + ":"
     for weekday in calendar.keys():
         # building flag emojis list
         flags = ""
