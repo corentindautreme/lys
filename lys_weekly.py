@@ -58,8 +58,8 @@ def main(event, context):
 
     is_test = "isTest" in event
     today = datetime.datetime.now() + datetime.timedelta(hours=1)
-    tomorrow_morning = (today + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0)
-    next_sunday_evening = (today + datetime.timedelta(days=7)).replace(hour=23, minute=59, second=59)
+    tomorrow_morning = (today + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0).strftime(DATETIME_CET_FORMAT)
+    next_sunday_evening = (today + datetime.timedelta(days=7)).replace(hour=23, minute=59, second=59).strftime(DATETIME_CET_FORMAT)
 
     events = table.scan(
         FilterExpression=Key('dateTimeCet').between(tomorrow_morning, next_sunday_evening)
