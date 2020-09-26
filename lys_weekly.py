@@ -1,7 +1,7 @@
 import datetime
 import os
 
-from common import flag_emojis, send_tweet, DATETIME_CET_FORMAT
+from common import flag_emojis, create_tweepy_api, send_tweet, DATETIME_CET_FORMAT
 
 def generate_weekly_tweet_body(events):
     # list of (weekday, country) tuples
