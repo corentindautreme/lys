@@ -53,7 +53,7 @@ def main(event, context):
     output = []
 
     now = today.strftime(DATETIME_CET_FORMAT)
-    now_plus5min = today + datetime.timedelta(minutes=5).replace(second=0).strftime(DATETIME_CET_FORMAT)
+    now_plus5min = (today + datetime.timedelta(minutes=5)).replace(second=0).strftime(DATETIME_CET_FORMAT)
 
     events = table.scan(
         FilterExpression=Key('dateTimeCet').between(now, now_plus5min)
