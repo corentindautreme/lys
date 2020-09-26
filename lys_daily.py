@@ -1,6 +1,5 @@
 import datetime
 import os
-import tweepy
 
 try:
     import boto3
@@ -8,7 +7,7 @@ try:
 except ImportError:
     pass
     
-from common import create_tweepy_api, send_tweet, DATETIME_CET_FORMAT
+from common import create_tweepy_api, send_tweet, DATETIME_CET_FORMAT, flag_emojis
 
 GENERIC_EVENT_STRING = "{} | {} - {} at {} CET. Watch live: {}"
 
@@ -19,7 +18,12 @@ def generate_event_string(event, twitter_post):
         watchLink = event['watchLink']
     except KeyError:
         watchLink = "(no watch link found)"
-    return twitter_post + GENERIC_EVENT_STRING.format(event['country'], event['name'], event['stage'], time, watchLink)
+    if event['country'] not in flag_emojis:
+        output.append("WARNING: no emoji found for country " + country)
+        country = event['country']
+    else:
+        country = flag_emojis[event['country']] + " " + event['country']
+    return twitter_post + GENERIC_EVENT_STRING.format(country, event['name'], event['stage'], time, watchLink)
 
 
 def generate_daily_tweet_thread(events, is_morning):

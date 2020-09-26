@@ -1,4 +1,5 @@
 import datetime
+import os
 
 from common import flag_emojis, send_tweet, DATETIME_CET_FORMAT
 
