@@ -1,6 +1,12 @@
 import datetime
 import os
 
+try:
+    import boto3
+    from boto3.dynamodb.conditions import Key
+except ImportError:
+    pass
+
 from common import flag_emojis, create_tweepy_api, send_tweet, DATETIME_CET_FORMAT
 
 def generate_weekly_tweet_body(events):
