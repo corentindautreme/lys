@@ -63,7 +63,7 @@ def main(event, context):
 
     events = table.scan(
         FilterExpression=Key('dateTimeCet').between(tomorrow_morning, next_sunday_evening)
-    )['Items']
+    )['Items'] if not is_test else [{'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLink': 'https://svtplay.se'}]
 
     if len(events) == 0:
         return
