@@ -1,4 +1,4 @@
-name: Deploy lambda
+name: Deploy lambdas
 
 on:
   push:
@@ -29,19 +29,30 @@ jobs:
         pip install pytest
         export PYTHONPATH=$PYTHONPATH:$(pwd)/lib
         pytest test/
-    - name: Package
+    - name: Package (daily, weekly)
       if: success()
       run: |
-        zip -ur lys.zip lys.py
+        zip -ur lys_daily.zip lys_daily.py
+        zip -ur lys_weekly.zip lys_weekly.py
         cd lib
-        zip -ur ../lys.zip *
+        zip -ur ../lys_daily.zip *
+        zip -ur ../lys_weekly.zip *
         cd ..
-    - name: Deploy
+    - name: Deploy Lys daily
       if: success()
       uses: stcalica/update-lambda@0.0.2
       with:
-        package: lys.zip
+        package: lys_daily.zip
         function-name: LysUpdate
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_SECRET_ID: ${{ secrets.AWS_SECRET_ID }}
+        AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+    - name: Deploy Lys weekly
+      if: success()
+      uses: stcalica/update-lambda@0.0.2
+      with:
+        package: lys_weekly.zip
+        function-name: LysWeekly
         AWS_REGION: ${{ secrets.AWS_REGION }}
         AWS_SECRET_ID: ${{ secrets.AWS_SECRET_ID }}
         AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}

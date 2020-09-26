@@ -1,6 +1,6 @@
 import unittest
 
-from lys import generate_daily_tweet_thread
+from lys_daily import generate_daily_tweet_thread
 
 class DailyTweetsGenerationTest(unittest.TestCase):
     def test_when_one_event_then_should_generate_one_tweet(self):

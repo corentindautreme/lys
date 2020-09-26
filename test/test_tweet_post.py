@@ -4,7 +4,7 @@ import tweepy
 
 from tweepy.error import TweepError
 
-from lys import send_tweet
+from common import send_tweet, create_tweepy_api
 
 class TweetPostTest(unittest.TestCase):
     @classmethod
@@ -17,9 +17,7 @@ class TweetPostTest(unittest.TestCase):
         access_token = os.environ['TWITTER_ACCESS_TOKEN']
         access_token_secret = os.environ['TWITTER_ACCESS_SECRET']
 
-        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-        auth.set_access_token(access_token, access_token_secret)
-        cls.tweepy_api = tweepy.API(auth)
+        cls.tweepy_api = create_tweepy_api(consumer_key, consumer_secret, access_token, access_token_secret)
 
     def test_when_calling_tweet_post_method_with_thread_should_send_tweet_thread_successfully(self):
         try:

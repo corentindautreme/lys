@@ -1,6 +1,6 @@
 import unittest
 
-from lys import generate_weekly_tweet_body
+from lys_weekly import generate_weekly_tweet_body
 
 class WeeklyTweetGenerationTest(unittest.TestCase):
     def test_when_one_event_then_tweet_should_only_contain_this_one_event(self):
