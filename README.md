@@ -14,6 +14,7 @@ There is also a weekly tweet every Sunday afternoon that contains a summary of t
 
 > Coming up next week (* = final):<br>
  \- Tuesday: 🇪🇪<br>
+ \- Thursday: 🇪🇪<br>
  \- Saturday: 🇸🇪🇳🇴*
 
 And finally, a reminder for every show 5 minutes before they start:
