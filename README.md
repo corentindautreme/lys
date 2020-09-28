@@ -19,8 +19,8 @@ There is also a weekly tweet every Sunday afternoon that contains a summary of t
 
 And finally, a reminder for every show 5 minutes before they start:
 
-> 🚨 5 MINUTES REMINDER!<br>
-🇸🇪 Melodifestivalen - Heat 2 (https://svtplay.se/melodifestivalen)<br><br>
+> 🚨 5 MINUTES REMINDER!<br><br>
+🇸🇪 Melodifestivalen - Heat 2 (https://svtplay.se/melodifestivalen)<br>
 🇳🇴 Melodi Grand Prix - Final (https://nrk.no/mgp)
 
 ## How does it run?
