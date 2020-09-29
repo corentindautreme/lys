@@ -11,7 +11,7 @@ from common import flag_emojis, create_tweepy_api, send_tweet, DATETIME_CET_FORM
 
 def generate_weekly_tweet_body(events):
     # list of (weekday, country) tuples
-    simplified_events = list(map(lambda e: (datetime.datetime.strptime(e['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%A"), e['country'] + ('*' if e['stage'] == "Final" else '')), events))
+    simplified_events = list(map(lambda e: (datetime.datetime.strptime(e['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%A %d"), e['country'] + ('*' if e['stage'] == "Final" else '')), events))
     # indicates if any event is a final
     includes_final = False
     output = []

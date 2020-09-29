@@ -13,9 +13,9 @@ Twice a day, this script will be run and search for events (selection shows) hap
 There is also a weekly tweet every Sunday afternoon that contains a summary of the week ahead:
 
 > 🗓️ COMING UP NEXT WEEK (* = final):<br><br>
- \- Tuesday: 🇪🇪<br>
- \- Thursday: 🇪🇪<br>
- \- Saturday: 🇸🇪🇳🇴*
+ \- Tuesday 16: 🇪🇪<br>
+ \- Thursday 18: 🇪🇪<br>
+ \- Saturday 20: 🇸🇪🇳🇴*
 
 And finally, a reminder for every show 5 minutes before they start:
 
