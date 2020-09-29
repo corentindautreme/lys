@@ -29,7 +29,7 @@ jobs:
         pip install pytest
         export PYTHONPATH=$PYTHONPATH:$(pwd)/lib
         pytest test/
-    - name: Package (daily, weekly)
+    - name: Package (daily, weekly & 5 minutes)
       if: success()
       run: |
         zip -ur lys_daily.zip lys_daily.py common.py
