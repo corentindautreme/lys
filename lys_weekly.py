@@ -68,6 +68,7 @@ def main(event, context):
     if len(events) == 0:
         return
 
+    events = sorted(events, key=lambda e: e['dateTimeCet'])
     (twitter_post, output) = generate_weekly_tweet_body(events)
 
     if not is_test:
