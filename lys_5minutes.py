@@ -52,7 +52,7 @@ def main(event, context):
     today = datetime.datetime.now() + datetime.timedelta(hours=1)
     output = []
 
-    now = today.strftime(DATETIME_CET_FORMAT)
+    now = (today + datetime.timedelta(seconds=1)).strftime(DATETIME_CET_FORMAT)
     now_plus5min = (today + datetime.timedelta(minutes=5)).replace(second=0).strftime(DATETIME_CET_FORMAT)
 
     events = table.scan(
