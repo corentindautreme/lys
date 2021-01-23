@@ -42,7 +42,7 @@ def generate_daily_tweet_thread(events, is_morning):
         tweets = []
         tweets.append(twitter_post + str(len(events)) + " selection shows across Europe{}!".format(" and Australia" if any("Australia" == e['country'] for e in events) else ""))
 
-        for event in events:
+        for event in sorted(events, key=lambda e: (e['dateTimeCet'], e['country'])):
             event_string = generate_event_string(event, twitter_post)
             tweets.append(event_string)
 
