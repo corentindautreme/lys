@@ -11,7 +11,7 @@ from common import flag_emojis, create_tweepy_api, send_tweet, DATETIME_CET_FORM
 
 def generate_weekly_tweet_body(events):
     # list of (weekday, country) tuples
-    simplified_events = list(map(lambda e: (datetime.datetime.strptime(e['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%A %d"), e['country'] + ('*' if e['stage'] == "Final" else '')), events))
+    simplified_events = list(map(lambda e: (datetime.datetime.strptime(e['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%A %d"), e['country'] + ('*' if "Final" in e['stage'] else '')), events))
     # indicates if any event is a final
     includes_final = False
     output = []
@@ -24,15 +24,15 @@ def generate_weekly_tweet_body(events):
         if '*' in country:
             includes_final = True
         if day not in calendar:
-            calendar[day] = []
-        calendar[day].append(country)
+            calendar[day] = set()
+        calendar[day].add(country)
 
     # building and posting the tweet
     twitter_post = "\U0001F5D3 COMING UP NEXT WEEK" + (" (* = final)" if includes_final else "") + ":\n"
     for weekday in calendar.keys():
         # building flag emojis list
         flags = ""
-        for c in calendar[weekday]:
+        for c in sorted(list(calendar[weekday])):
             final = '*' in c
             country = c.replace('*', '')
             if country not in flag_emojis:
