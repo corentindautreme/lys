@@ -1,5 +1,6 @@
 import datetime
 import os
+import re
 
 try:
     import boto3
@@ -34,13 +35,19 @@ def generate_daily_tweet_thread(events, is_morning):
     else:
         twitter_post = "TONIGHT: "
 
+    multi_parter_regex = re.compile(".*\(part [0-9]+\)")
+    event_count = len(list(filter(lambda e: re.match(multi_parter_regex, e['stage']) is None, events)))
+
     if len(events) == 1:
         event = events[0]
         twitter_post = generate_event_string(event, twitter_post)
         return [twitter_post]
     else:
         tweets = []
-        tweets.append(twitter_post + str(len(events)) + " selection shows across Europe{}!".format(" and Australia" if any("Australia" == e['country'] for e in events) else ""))
+        tweets.append(twitter_post + str(event_count) + " selection show{} across Europe{}!".format(
+            "s" if event_count > 1 else "",
+            " and Australia" if any("Australia" == e['country'] for e in events) else "")
+        )
 
         for event in sorted(events, key=lambda e: (e['dateTimeCet'], e['country'])):
             event_string = generate_event_string(event, twitter_post)
