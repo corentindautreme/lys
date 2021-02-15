@@ -35,7 +35,7 @@ def generate_daily_tweet_thread(events, is_morning):
     else:
         twitter_post = "TONIGHT: "
 
-    multi_parter_regex = re.compile(".*\(part [0-9]+\)")
+    multi_parter_regex = re.compile(r".*\(part [0-9]+\)")
     event_count = len(list(filter(lambda e: re.match(multi_parter_regex, e['stage']) is None, events)))
 
     if len(events) == 1:
