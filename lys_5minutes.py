@@ -16,9 +16,7 @@ def generate_event_strings(events):
         flag = (flag_emojis[event['country']] + " ") if event['country'] in flag_emojis else ""
         watch_link_string = ""
         try:
-            print(event)
             watch_links = event['watchLinks']
-            print(watch_links)
             for watch_link in watch_links:
                 if watch_link_string != "":
                     watch_link_string += " OR "
@@ -68,7 +66,7 @@ def main(event, context):
 
     events = table.scan(
         FilterExpression=Key('dateTimeCet').between(now, now_plus5min)
-    )['Items'] if not is_test else [{'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLink': 'https://svtplay.se'}]
+    )['Items'] if not is_test else [{'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLinks': [{'link': 'https://svtplay.se'}]}]
 
     if len(events) == 0:
         return
