@@ -14,12 +14,23 @@ def generate_event_strings(events):
     event_strings = []
     for event in events:
         flag = (flag_emojis[event['country']] + " ") if event['country'] in flag_emojis else ""
-        watchLink = ""
+        watch_link_string = ""
         try:
-            watchLink = " (" + event['watchLink'] + ")"
+            print(event)
+            watch_links = event['watchLinks']
+            print(watch_links)
+            for watch_link in watch_links:
+                if watch_link_string != "":
+                    watch_link_string += " OR "
+                if "link" in watch_link:
+                    watch_link_string += watch_link['link'] + ((" (" + watch_link['comment'] + ")") if "comment" in watch_link and watch_link['comment'] != "" and watch_link['comment'] != "Recommended link" else "")
         except KeyError:
             pass
-        event_string = "\n{}{} - {}{}".format(flag, event['name'], event['stage'], watchLink)
+        if watch_link_string == "":    
+            watch_link_string = "(no watch link found)"
+        else:
+            watch_link_string = "(" + watch_link_string + ")"
+        event_string = "\n{}{} - {} {}".format(flag, event['name'], event['stage'], watch_link_string)
         event_strings.append(event_string)
     return event_strings
 
