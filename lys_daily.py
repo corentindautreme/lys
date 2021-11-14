@@ -14,17 +14,24 @@ GENERIC_EVENT_STRING = "{} | {} - {} at {} CET. Watch live: {}"
 
 def generate_event_string(event, twitter_post):
     time = datetime.datetime.strptime(event['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%H:%M")
-    watchLink = ""
+    watch_link_string = ""
     try:
-        watchLink = event['watchLink']
+        watch_links = event['watchLinks']
+        for watch_link in watch_links:
+            if watch_link_string != "":
+                watch_link_string += " OR "
+            if "link" in watch_link:
+                watch_link_string += watch_link['link'] + ((" (" + watch_link['comment'] + ")") if "comment" in watch_link and watch_link['comment'] != "" and watch_link['comment'] != "Recommended link" else "")
     except KeyError:
-        watchLink = "(no watch link found)"
+        pass
+    if watch_link_string == "":    
+        watch_link_string = "(no watch link found)"
     if event['country'] not in flag_emojis:
         output.append("WARNING: no emoji found for country " + country)
         country = event['country']
     else:
         country = flag_emojis[event['country']] + " " + event['country']
-    return twitter_post + GENERIC_EVENT_STRING.format(country, event['name'], event['stage'], time, watchLink)
+    return twitter_post + GENERIC_EVENT_STRING.format(country, event['name'], event['stage'], time, watch_link_string)
 
 
 def generate_daily_tweet_thread(events, is_morning):
