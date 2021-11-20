@@ -29,16 +29,18 @@ jobs:
         pip install pytest
         export PYTHONPATH=$PYTHONPATH:$(pwd)/lib
         pytest test/
-    - name: Package (daily, weekly & 5 minutes)
+    - name: Package (daily, weekly, 5 minutes & dump)
       if: success()
       run: |
         zip -ur lys_daily.zip lys_daily.py common.py
         zip -ur lys_weekly.zip lys_weekly.py common.py
         zip -ur lys_5minutes.zip lys_5minutes.py common.py
+        zip -ur lys_dump.zip lys_dump.py common.py
         cd lib
         zip -ur ../lys_daily.zip *
         zip -ur ../lys_weekly.zip *
         zip -ur ../lys_5minutes.zip *
+        zip -ur ../lys_dump.zip *
         cd ..
     - name: Deploy Lys daily
       if: success()
@@ -64,6 +66,15 @@ jobs:
       with:
         package: lys_5minutes.zip
         function-name: Lys5Minutes
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_SECRET_ID: ${{ secrets.AWS_SECRET_ID }}
+        AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+    - name: Deploy Lys dump
+      if: success()
+      uses: stcalica/update-lambda@0.0.2
+      with:
+        package: lys_dump.zip
+        function-name: LysDump
         AWS_REGION: ${{ secrets.AWS_REGION }}
         AWS_SECRET_ID: ${{ secrets.AWS_SECRET_ID }}
         AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
