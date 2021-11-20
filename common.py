@@ -2,6 +2,8 @@ import tweepy
 import datetime
 from operator import itemgetter as i
 from functools import cmp_to_key
+import json
+import decimal
 
 DATETIME_CET_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
@@ -109,3 +111,9 @@ def multikeysort(items, columns):
         )
         return next((result for result in comparer_iter if result), 0)
     return sorted(items, key=cmp_to_key(comparer))
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, decimal.Decimal):
+            return int(obj)
+        return super(DecimalEncoder, self).default(obj)

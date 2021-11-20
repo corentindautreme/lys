@@ -11,7 +11,7 @@ except ImportError:
 
 from urllib3.exceptions import InsecureRequestWarning
 
-from common import get_current_season_range_for_date, DATETIME_CET_FORMAT, multikeysort
+from common import get_current_season_range_for_date, DATETIME_CET_FORMAT, multikeysort, DecimalEncoder
 
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
@@ -23,7 +23,7 @@ def dump_calendar_to_github():
 
     auth_header = base64.b64encode(str.encode(username + ":" + pat)).decode("ascii")
 
-    with open('lys_dump.json', 'r') as f:
+    with open('/tmp/lys_dump.json', 'r') as f:
         dump = f.read()
 
     response = requests.get(GITHUB_API_BASE + "/repos/lyseurovision/lys.github.io/branches/main", headers={'Authorization': 'Basic ' + auth_header}, verify=False)
@@ -81,12 +81,12 @@ def main(event, context):
 
     latest_dump = requests.get('https://raw.githubusercontent.com/LysEurovision/lys.github.io/main/lys_dump.json', verify=False).json()
     
-    if json.dumps(latest_dump) == json.dumps(sorted_events):
+    if json.dumps(latest_dump) == json.dumps(sorted_events, cls=DecimalEncoder):
         print("No diff between latest dump and current event list - nothing to do")
         return "No diff between latest dump and current event list - nothing to do"
 
-    with open('lys_dump.json', 'w') as f:
-        f.write(json.dumps(sorted_events))
+    with open('/tmp/lys_dump.json', 'w') as f:
+        f.write(json.dumps(sorted_events, cls=DecimalEncoder))
 
     dump_calendar_to_github()
     print("Dumped calendar to Github")
