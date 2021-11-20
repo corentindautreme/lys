@@ -89,8 +89,8 @@ def main(event, context):
         f.write(json.dumps(sorted_events))
 
     dump_calendar_to_github()
-        print("Dumped calendar to Github")
-        return "Dumped calendar to Github"
+    print("Dumped calendar to Github")
+    return "Dumped calendar to Github"
 
 
 if __name__ == '__main__':
