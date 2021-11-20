@@ -2,6 +2,7 @@ import datetime
 import requests
 import json
 import os
+import base64
 
 try:
     import boto3
