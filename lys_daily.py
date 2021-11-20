@@ -17,7 +17,8 @@ def generate_event_string(event, twitter_post):
     watch_link_string = ""
     try:
         watch_links = event['watchLinks']
-        for watch_link in watch_links:
+        # tweeting only links that can be watched live
+        for watch_link in list(filter(lambda wl: 'live' in wl and wl['live'], watch_links)):
             if watch_link_string != "":
                 watch_link_string += " OR "
             if "link" in watch_link:
