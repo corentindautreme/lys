@@ -38,3 +38,24 @@ class FiveMinutesTweetsGenerationTest(unittest.TestCase):
         tweets = build_tweets(event_strings)
         self.assertEqual(len(tweets), 1)
         self.assertEqual(tweets[0], "\U0001F6A8 5 MINUTES REMINDER!\n\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (https://svtplay.se)")
+
+    def test_when_one_event_contains_geoblocked_watch_links_should_add_geoblocked_comment_to_tweet(self):
+        events = [{'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLinks': [{'link': 'https://svtplay.se', 'comment': 'Recommended link', 'live': 1}, {'link': 'https://svtplay.se', 'comment': 'Another link', 'live': 1, 'geoblocked': 1}]}]
+        event_strings = generate_event_strings(events)
+        tweets = build_tweets(event_strings)
+        self.assertEqual(len(tweets), 1)
+        self.assertEqual(tweets[0], "\U0001F6A8 5 MINUTES REMINDER!\n\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (https://svtplay.se OR https://svtplay.se (Another link) (geoblocked))")
+
+    def test_when_one_event_contains_watch_link_that_requires_an_account_should_add_comment_to_tweet(self):
+        events = [{'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLinks': [{'link': 'https://svtplay.se', 'comment': 'Recommended link', 'live': 1}, {'link': 'https://svtplay.se', 'comment': 'Another link', 'live': 1, 'accountRequired': 1}]}]
+        event_strings = generate_event_strings(events)
+        tweets = build_tweets(event_strings)
+        self.assertEqual(len(tweets), 1)
+        self.assertEqual(tweets[0], "\U0001F6A8 5 MINUTES REMINDER!\n\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (https://svtplay.se OR https://svtplay.se (Another link) (account required))")
+
+    def test_when_one_event_contains_watch_link_that_requires_an_account_and_is_geoblocked_should_add_comment_to_tweet(self):
+        events = [{'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLinks': [{'link': 'https://svtplay.se', 'comment': 'Recommended link', 'live': 1}, {'link': 'https://svtplay.se', 'comment': 'Another link', 'live': 1, 'accountRequired': 1, 'geoblocked': 1}]}]
+        event_strings = generate_event_strings(events)
+        tweets = build_tweets(event_strings)
+        self.assertEqual(len(tweets), 1)
+        self.assertEqual(tweets[0], "\U0001F6A8 5 MINUTES REMINDER!\n\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (https://svtplay.se OR https://svtplay.se (Another link) (geoblocked, account required))")

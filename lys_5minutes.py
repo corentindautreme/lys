@@ -23,6 +23,13 @@ def generate_event_strings(events):
                     watch_link_string += " OR "
                 if "link" in watch_link:
                     watch_link_string += watch_link['link'] + ((" (" + watch_link['comment'] + ")") if "comment" in watch_link and watch_link['comment'] != "" and watch_link['comment'] != "Recommended link" else "")
+                additional_comments = []
+                if "geoblocked" in watch_link and watch_link['geoblocked']:
+                    additional_comments.append("geoblocked")
+                if "accountRequired" in watch_link and watch_link['accountRequired']:
+                    additional_comments.append("account required")
+                if len(additional_comments) > 0:
+                    watch_link_string += " (" + ", ".join(additional_comments) + ")"
         except KeyError:
             pass
         if watch_link_string == "":    
