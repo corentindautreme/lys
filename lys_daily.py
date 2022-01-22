@@ -30,6 +30,7 @@ def generate_event_string(event, twitter_post):
                 additional_comments.append("account required: https://lyseurovision.github.io/help.html#account-" + event['country'])
             if len(additional_comments) > 0:
                 watch_link_string += " (" + ", ".join(additional_comments) + ")"
+        watch_link_string += "."
     except KeyError:
         pass
     if watch_link_string == "":    
