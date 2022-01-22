@@ -27,7 +27,7 @@ def generate_event_strings(events):
                 if "geoblocked" in watch_link and watch_link['geoblocked']:
                     additional_comments.append("geoblocked")
                 if "accountRequired" in watch_link and watch_link['accountRequired']:
-                    additional_comments.append("account required")
+                    additional_comments.append("account required: https://lyseurovision.github.io/help.html#account-" + event['country'])
                 if len(additional_comments) > 0:
                     watch_link_string += " (" + ", ".join(additional_comments) + ")"
         except KeyError:

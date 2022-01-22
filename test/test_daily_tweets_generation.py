@@ -119,7 +119,7 @@ class DailyTweetsGenerationTest(unittest.TestCase):
         ]
         tweets = generate_daily_tweet_thread(events, is_morning=True)
         self.assertEqual(len(tweets), 1)
-        self.assertEqual(tweets[0], "TODAY: \U0001F1F3\U0001F1F4 Norway | Melodi Grand Prix - Final at 19:50 CET. Watch live: https://nrk.no/mgp OR https://tv.nrk.no (account required)")
+        self.assertEqual(tweets[0], "TODAY: \U0001F1F3\U0001F1F4 Norway | Melodi Grand Prix - Final at 19:50 CET. Watch live: https://nrk.no/mgp OR https://tv.nrk.no (account required: https://lyseurovision.github.io/help.html#account-Norway)")
 
 
     def test_when_one_event_contains_watch_link_that_requires_an_account_and_is_geoblocked_should_add_comment_to_tweet(self):
@@ -128,4 +128,4 @@ class DailyTweetsGenerationTest(unittest.TestCase):
         ]
         tweets = generate_daily_tweet_thread(events, is_morning=True)
         self.assertEqual(len(tweets), 1)
-        self.assertEqual(tweets[0], "TODAY: \U0001F1F3\U0001F1F4 Norway | Melodi Grand Prix - Final at 19:50 CET. Watch live: https://nrk.no/mgp OR https://tv.nrk.no (geoblocked, account required)")
+        self.assertEqual(tweets[0], "TODAY: \U0001F1F3\U0001F1F4 Norway | Melodi Grand Prix - Final at 19:50 CET. Watch live: https://nrk.no/mgp OR https://tv.nrk.no (geoblocked, account required: https://lyseurovision.github.io/help.html#account-Norway)")
