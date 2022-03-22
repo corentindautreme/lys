@@ -77,7 +77,7 @@ def create_tweepy_api(consumer_key, consumer_secret, access_token, access_token_
     return tweepy.API(auth)
 
 def get_current_season_range_for_date(date):
-    if date.month > 3:
+    if date.month > 8:
         season_start = datetime.datetime(date.year, 9, 1, 0, 0, 0)
         season_end = datetime.datetime(date.year + 1, 3, 31, 23, 59, 59)
         return (season_start, season_end)
