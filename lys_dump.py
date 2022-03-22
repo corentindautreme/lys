@@ -74,9 +74,11 @@ def main(event, context):
 
     today = datetime.datetime.now()
     (season_start, season_end) = get_current_season_range_for_date(today)
+    season_start_str = season_start.strftime(DATETIME_CET_FORMAT)
+    season_end_str = season_end.strftime(DATETIME_CET_FORMAT)
 
     events = table.scan(
-        FilterExpression=Key('dateTimeCet').between(season_start.strftime(DATETIME_CET_FORMAT), season_end.strftime(DATETIME_CET_FORMAT))
+        FilterExpression=Key('dateTimeCet').between(season_start_str, season_end_str)
     )['Items']
     sorted_events = multikeysort(events, ['dateTimeCet', 'country'])
 
@@ -90,8 +92,8 @@ def main(event, context):
         f.write(json.dumps(sorted_events, cls=DecimalEncoder))
 
     dump_calendar_to_github()
-    print("Dumped calendar to Github")
-    return "Dumped calendar to Github"
+    print("Dumped calendar to Github for season range " + season_start_str[:10] + " - " + season_end_str[:10])
+    return "Dumped calendar to Github for season range " + season_start_str[:10] + " - " + season_end_str[:10]
 
 
 if __name__ == '__main__':
