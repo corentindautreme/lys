@@ -51,7 +51,7 @@ def main(event, context):
     access_token = os.environ['TWITTER_ACCESS_TOKEN']
     access_token_secret = os.environ['TWITTER_ACCESS_SECRET']
 
-    client = create_tweepy_client(consumer_key, consumer_secret, access_token, access_token_secret)
+    client = create_tweepy_client(consumer_key, consumer_secret, access_token, access_token_secret, twitter_api_version=2)
 
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('lys_events')
