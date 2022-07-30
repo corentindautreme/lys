@@ -8,7 +8,13 @@ Lys is a [Twitter bot](https://twitter.com/EurovisionLys) aiming at publishing d
 
 Twice a day, this script will be run and search for events (selection shows) happening on the day in a manually maintained database (although most events are extracted automatically, take a look [over there](https://github.com/corentindautreme/lys-event-fetcher)). For each event found, the bot will post on the @EurovisionLys twitter account a Tweet that looks just like this:
 
-> TONIGHT: 🇸🇪 Sweden | Melodifestivalen - Final at 20:00 CET. Watch live: https://svtplay.se
+> TONIGHT | 🇸🇪 SWEDEN<br>
+\---------<br>
+📼 Melodifestivalen<br>
+🏆 Final<br>
+🕓 20:00 CET<br>
+\---------<br>
+ 📺 https://svtplay.se.
 
 There is also a weekly tweet every Sunday afternoon that contains a summary of the week ahead:
 
@@ -19,8 +25,10 @@ There is also a weekly tweet every Sunday afternoon that contains a summary of t
 
 And finally, a reminder for every show 5 minutes before they start:
 
-> 🚨 5 MINUTES REMINDER!<br><br>
+> 🚨 5 MINUTES REMINDER!<br>
+\---------<br>
 🇸🇪 Melodifestivalen - Heat 2 (https://svtplay.se/melodifestivalen)<br>
+\---------<br>
 🇳🇴 Melodi Grand Prix - Final (https://nrk.no/mgp)
 
 ## How does it run?
