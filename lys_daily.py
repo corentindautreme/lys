@@ -8,6 +8,7 @@ try:
 except ImportError:
     pass
     
+from tweepy.errors import TweepyException, HTTPException
 from common import create_tweepy_client, send_tweet, DATETIME_CET_FORMAT, flag_emojis, CASSETTE_EMOJI, TROPHY_EMOJI, CLOCK_EMOJI, TV_EMOJI
 
 GENERIC_EVENT_STRING = "{}\n---------\n" + CASSETTE_EMOJI + " {}\n" + TROPHY_EMOJI + " {}\n" + CLOCK_EMOJI + " {} CET\n---------\n" + TV_EMOJI + " {}"
@@ -72,6 +73,29 @@ def generate_daily_tweet_thread(events, is_morning):
         return tweets
 
 
+def post_tweet(client, tweet, reply_tweet_id):
+    try:
+        response = send_tweet(client, tweet, reply_tweet_id)
+        tweet_id = response.data['id']
+        return (tweet_id, [])
+    except HTTPException as e:
+        return (None, e.api_errors)
+    except TweepyException as e:
+        return (None, [str(e)])
+
+
+def send_errors_via_dm(errors, total_tweets, failed_tweets):
+    consumer_key = os.environ['TWITTER_CONSUMER_KEY']
+    consumer_secret = os.environ['TWITTER_CONSUMER_SECRET']
+    access_token = os.environ['TWITTER_ACCESS_TOKEN']
+    access_token_secret = os.environ['TWITTER_ACCESS_SECRET']
+    api = create_tweepy_client(consumer_key, consumer_secret, access_token, access_token_secret, twitter_api_version=1)
+    target_user_id = 81432351
+    message = "\U000026A0 Lys daily - {}/{} failed tweets: {}".format(failed_tweets, total_tweets, str(errors))
+    api.send_direct_message(recipient_id=target_user_id, text=message)
+    return
+
+
 def main(event, context):
     consumer_key = os.environ['TWITTER_CONSUMER_KEY']
     consumer_secret = os.environ['TWITTER_CONSUMER_SECRET']
@@ -99,16 +123,32 @@ def main(event, context):
 
     tweets = generate_daily_tweet_thread(events, is_morning=(today.hour < 12))
 
+    errors = []
+    failed_tweets = 0
     last_tweet_id = None
-    if not is_test:
-        response = send_tweet(client, tweet=tweets[0])
-        last_tweet_id = response.data['id']
+
     output.append(tweets[0])
+    if not is_test:
+        (tweet_id, api_errors) = post_tweet(client, tweet=tweets[0], reply_tweet_id=None)
+        if not tweet_id:
+            errors.extend(api_errors)
+            failed_tweets += 1
+            output.append("Failed to tweet " + tweets[0] + " - " + str(api_errors))
+        else:
+            last_tweet_id = tweet_id
 
     for i in range(1,len(tweets)):
-        if not is_test:
-            response = send_tweet(client, tweet=tweets[i], reply_tweet_id=last_tweet_id)
-            last_tweet_id = response.data['id']
         output.append(tweets[i])
+        if not is_test:
+            (tweet_id, api_errors) = post_tweet(client, tweet=tweets[i], reply_tweet_id=last_tweet_id)
+            if not tweet_id:
+                errors.extend(api_errors)
+                failed_tweets += 1
+                output.append("Failed to tweet " + tweets[i] + " - " + str(api_errors))
+            else:
+                last_tweet_id = tweet_id
+
+    if len(errors) > 0:
+        send_errors_via_dm(errors, len(tweets), failed_tweets)
 
     return output
