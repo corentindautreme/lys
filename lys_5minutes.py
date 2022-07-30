@@ -7,7 +7,7 @@ try:
 except ImportError:
     pass
     
-from common import create_tweepy_client, send_tweet, DATETIME_CET_FORMAT, flag_emojis
+from common import create_tweepy_client, send_tweet, DATETIME_CET_FORMAT, flag_emojis, ALERT_EMOJI
 
 
 def generate_event_strings(events):
@@ -42,7 +42,7 @@ def generate_event_strings(events):
 
 def build_tweets(event_strings):
     tweets = []
-    tweet = "\U0001F6A8 5 MINUTES REMINDER!"
+    tweet = ALERT_EMOJI + " 5 MINUTES REMINDER!"
     for string in event_strings:
         if len(tweet+string) < 260:
             tweet += "\n---------" + string
