@@ -99,14 +99,16 @@ def main(event, context):
 
     tweets = generate_daily_tweet_thread(events, is_morning=(today.hour < 12))
 
-    status = None
+    last_tweet_id = None
     if not is_test:
-        status = send_tweet(client, tweet=tweets[0])
+        response = send_tweet(client, tweet=tweets[0])
+        last_tweet_id = response.data['id']
     output.append(tweets[0])
 
     for i in range(1,len(tweets)):
         if not is_test:
-            status = send_tweet(client, tweet=tweets[i], reply_tweet_id=status.id_str)
+            response = send_tweet(client, tweet=tweets[i], reply_tweet_id=last_tweet_id)
+            last_tweet_id = response.data['id']
         output.append(tweets[i])
 
     return output
