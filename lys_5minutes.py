@@ -7,7 +7,7 @@ try:
 except ImportError:
     pass
     
-from common import create_tweepy_api, send_tweet, DATETIME_CET_FORMAT, flag_emojis
+from common import create_tweepy_client, send_tweet, DATETIME_CET_FORMAT, flag_emojis
 
 
 def generate_event_strings(events):
@@ -42,13 +42,13 @@ def generate_event_strings(events):
 
 def build_tweets(event_strings):
     tweets = []
-    tweet = "\U0001F6A8 5 MINUTES REMINDER!\n"
-    for str in event_strings:
-        if len(tweet+str) < 260:
-            tweet += str
+    tweet = "\U0001F6A8 5 MINUTES REMINDER!"
+    for string in event_strings:
+        if len(tweet+string) < 260:
+            tweet += "\n---------" + string
         else:
             tweets.append(tweet)
-            tweet = str.lstrip('\n')
+            tweet = string.lstrip('\n')
     if len(tweet) > 0:
         tweets.append(tweet)
     return tweets
@@ -60,7 +60,7 @@ def main(event, context):
     access_token = os.environ['TWITTER_ACCESS_TOKEN']
     access_token_secret = os.environ['TWITTER_ACCESS_SECRET']
 
-    api = create_tweepy_api(consumer_key, consumer_secret, access_token, access_token_secret)
+    client = create_tweepy_client(consumer_key, consumer_secret, access_token, access_token_secret)
 
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('lys_events')
@@ -84,12 +84,12 @@ def main(event, context):
     
     status = None
     if not is_test:
-        status = send_tweet(api, tweet=tweets[0])
+        status = send_tweet(client, tweet=tweets[0])
     output.append(tweets[0])
 
     for i in range(1,len(tweets)):
         if not is_test:
-            status = send_tweet(api, tweet=tweets[i], reply_status_id=status.id_str)
+            status = send_tweet(client, tweet=tweets[i], reply_tweet_id=status.id_str)
         output.append(tweets[i])
 
     return output

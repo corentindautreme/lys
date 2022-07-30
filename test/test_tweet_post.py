@@ -2,9 +2,9 @@ import unittest
 import os
 import tweepy
 
-from tweepy.error import TweepError
+from tweepy.errors import TweepyException, HTTPException
 
-from common import send_tweet, create_tweepy_api
+from common import send_tweet, create_tweepy_client
 
 class TweetPostTest(unittest.TestCase):
     @classmethod
@@ -17,20 +17,20 @@ class TweetPostTest(unittest.TestCase):
         access_token = os.environ['TWITTER_ACCESS_TOKEN']
         access_token_secret = os.environ['TWITTER_ACCESS_SECRET']
 
-        cls.tweepy_api = create_tweepy_api(consumer_key, consumer_secret, access_token, access_token_secret)
+        cls.tweepy_client = create_tweepy_client(consumer_key, consumer_secret, access_token, access_token_secret)
 
     def test_when_calling_tweet_post_method_with_thread_should_send_tweet_thread_successfully(self):
         try:
-            s1 = send_tweet(self.tweepy_api, tweet="Hello")
-        except TweepError as e:
+            t1_id = send_tweet(self.tweepy_client, tweet="Hello").data['id']
+        except (TweepyException, HTTPException) as e:
             self.fail("An exception was raised when sending the first tweet")
         try:
-            s2 = send_tweet(self.tweepy_api, tweet="World", reply_status_id=s1.id_str)
-        except TweepError as e:
-            self.tweepy_api.destroy_status(s1.id_str)
+            t2_id = send_tweet(self.tweepy_client, tweet="World", reply_tweet_id=t1_id).data['id']
+        except (TweepyException, HTTPException) as e:
+            self.tweepy_client.destroy_status(s1.id_str)
             self.fail("An exception was raised when sending the second tweet")
         try:
-            self.tweepy_api.destroy_status(s1.id_str)
-            self.tweepy_api.destroy_status(s2.id_str)
-        except TweepError as e:
+            self.tweepy_client.delete_tweet(t1_id)
+            self.tweepy_client.delete_tweet(t2_id)
+        except (TweepyException, HTTPException) as e:
             self.fail("An exception was raised when sending the first tweet")

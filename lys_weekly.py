@@ -7,7 +7,7 @@ try:
 except ImportError:
     pass
 
-from common import flag_emojis, create_tweepy_api, send_tweet, DATETIME_CET_FORMAT
+from common import flag_emojis, create_tweepy_client, send_tweet, DATETIME_CET_FORMAT
 
 def generate_weekly_tweet_body(events):
     # list of (weekday, country) tuples
@@ -51,7 +51,7 @@ def main(event, context):
     access_token = os.environ['TWITTER_ACCESS_TOKEN']
     access_token_secret = os.environ['TWITTER_ACCESS_SECRET']
 
-    api = create_tweepy_api(consumer_key, consumer_secret, access_token, access_token_secret)
+    client = create_tweepy_client(consumer_key, consumer_secret, access_token, access_token_secret)
 
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('lys_events')
@@ -72,7 +72,7 @@ def main(event, context):
     (twitter_post, output) = generate_weekly_tweet_body(events)
 
     if not is_test:
-        send_tweet(api, tweet=twitter_post)
+        send_tweet(client, tweet=twitter_post)
 
     output.append(twitter_post)
     return output

@@ -8,9 +8,9 @@ try:
 except ImportError:
     pass
     
-from common import create_tweepy_api, send_tweet, DATETIME_CET_FORMAT, flag_emojis
+from common import create_tweepy_client, send_tweet, DATETIME_CET_FORMAT, flag_emojis, CASSETTE_EMOJI, TROPHY_EMOJI, CLOCK_EMOJI, TV_EMOJI
 
-GENERIC_EVENT_STRING = "{} | {} - {} at {} CET. Watch live: {}"
+GENERIC_EVENT_STRING = "{}\n---------\n" + CASSETTE_EMOJI + " {}\n" + TROPHY_EMOJI + " {}\n" + CLOCK_EMOJI + " {} CET\n---------\n" + TV_EMOJI + " {}"
 
 def generate_event_string(event, twitter_post):
     time = datetime.datetime.strptime(event['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%H:%M")
@@ -37,9 +37,9 @@ def generate_event_string(event, twitter_post):
         watch_link_string = "(no watch link found)"
     if event['country'] not in flag_emojis:
         output.append("WARNING: no emoji found for country " + country)
-        country = event['country']
+        country = event['country'].upper()
     else:
-        country = flag_emojis[event['country']] + " " + event['country']
+        country = flag_emojis[event['country']] + " " + event['country'].upper()
     return twitter_post + GENERIC_EVENT_STRING.format(country, event['name'], event['stage'], time, watch_link_string)
 
 
@@ -47,9 +47,9 @@ def generate_daily_tweet_thread(events, is_morning):
     twitter_post = ""
 
     if is_morning:
-        twitter_post = "TODAY: "
+        twitter_post = "TODAY | "
     else:
-        twitter_post = "TONIGHT: "
+        twitter_post = "TONIGHT | "
 
     multi_parter_regex = re.compile(r".*\(part [0-9]+\)")
     event_count = len(list(filter(lambda e: re.match(multi_parter_regex, e['stage']) is None, events)))
@@ -78,7 +78,7 @@ def main(event, context):
     access_token = os.environ['TWITTER_ACCESS_TOKEN']
     access_token_secret = os.environ['TWITTER_ACCESS_SECRET']
 
-    api = create_tweepy_api(consumer_key, consumer_secret, access_token, access_token_secret)
+    client = create_tweepy_client(consumer_key, consumer_secret, access_token, access_token_secret)
 
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('lys_events')
@@ -101,12 +101,12 @@ def main(event, context):
 
     status = None
     if not is_test:
-        status = send_tweet(api, tweet=tweets[0])
+        status = send_tweet(client, tweet=tweets[0])
     output.append(tweets[0])
 
     for i in range(1,len(tweets)):
         if not is_test:
-            status = send_tweet(api, tweet=tweets[i], reply_status_id=status.id_str)
+            status = send_tweet(client, tweet=tweets[i], reply_tweet_id=status.id_str)
         output.append(tweets[i])
 
     return output

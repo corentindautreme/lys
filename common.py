@@ -64,17 +64,26 @@ flag_emojis = {
     "Kosovo": "\U0001F1FD\U0001F1F0"
 }
 
+CASSETTE_EMOJI = "\U0001F4FC"
+TROPHY_EMOJI = "\U0001F3C6"
+CLOCK_EMOJI = "\U0001F553"
+TV_EMOJI = "\U0001F4FA"
+ALERT_EMOJI = "\U0001F6A8"
+
 # tweepy
 
-def send_tweet(tweepy_api, tweet, reply_status_id=""):
-    if not reply_status_id:
-        return tweepy_api.update_status(tweet)
-    return tweepy_api.update_status(tweet, reply_status_id)
+def send_tweet(tweepy_client, tweet, reply_tweet_id=""):
+    if not reply_tweet_id:
+        return tweepy_client.create_tweet(text=tweet)
+    return tweepy_client.create_tweet(text=tweet, in_reply_to_tweet_id=reply_tweet_id)
 
-def create_tweepy_api(consumer_key, consumer_secret, access_token, access_token_secret):
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-    return tweepy.API(auth)
+def create_tweepy_client(consumer_key, consumer_secret, access_token, access_token_secret):
+    return tweepy.Client(
+        consumer_key=consumer_key,
+        consumer_secret=consumer_secret,
+        access_token=access_token,
+        access_token_secret=access_token_secret
+    )
 
 def get_current_season_range_for_date(date):
     if date.month > 8:
