@@ -7,10 +7,11 @@ try:
 except ImportError:
     pass
     
-from common import create_tweepy_client, send_tweet, DATETIME_CET_FORMAT, flag_emojis, ALERT_EMOJI
+from common import DATETIME_CET_FORMAT, flag_emojis, ALERT_EMOJI, BLUESKY, TWITTER, get_watch_link_string
+from twitter_utils import create_tweepy_client, send_tweet
 
 
-def generate_event_strings(events):
+def generate_twitter_event_strings(events):
     event_strings = []
     for event in events:
         flag = (flag_emojis[event['country']] + " ") if event['country'] in flag_emojis else ""
@@ -40,6 +41,7 @@ def generate_event_strings(events):
         event_strings.append(event_string)
     return event_strings
 
+
 def build_tweets(event_strings):
     tweets = []
     tweet = ALERT_EMOJI + " 5 MINUTES REMINDER!"
@@ -54,7 +56,31 @@ def build_tweets(event_strings):
     return tweets
 
 
-def main(event, context):
+def generate_twitter_thread(events):
+    event_strings = generate_twitter_event_strings(events)
+    return build_tweets(event_strings)
+
+
+def generate_bluesky_thread(events):
+    # TODO identify which post of the thread includes which event (to add right facets in right post)
+    # TODO return a list of list, that includes for each post a list of the indexes of the links that are present in the post?
+    # ex: posts = ["Post0=link 0, link 1", "Post1=link 2"], links_idx = [[0, 1], [2]]
+    # => we can then iterate on each list of links_idx and generate the facets for each post individually
+    return []
+
+
+def generate_thread(events, target):
+    posts = []
+    if target == TWITTER:
+        posts = generate_twitter_thread(events)
+    elif target == BLUESKY:
+        posts = generate_bluesky_thread(events)
+    else:
+        raise ValueError("Unknown target '" + str(target) + "'")
+    return posts
+
+
+def post_to_twitter(tweets, is_test=True):
     consumer_key = os.environ['TWITTER_CONSUMER_KEY']
     consumer_secret = os.environ['TWITTER_CONSUMER_SECRET']
     access_token = os.environ['TWITTER_ACCESS_TOKEN']
@@ -62,26 +88,8 @@ def main(event, context):
 
     client = create_tweepy_client(consumer_key, consumer_secret, access_token, access_token_secret, twitter_api_version=2)
 
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('lys_events')
-
-    is_test = "isTest" in event
-    today = datetime.datetime.now() + datetime.timedelta(hours=1)
     output = []
 
-    now = (today + datetime.timedelta(seconds=1)).strftime(DATETIME_CET_FORMAT)
-    now_plus5min = (today + datetime.timedelta(minutes=5)).replace(second=0).strftime(DATETIME_CET_FORMAT)
-
-    events = table.scan(
-        FilterExpression=Key('dateTimeCet').between(now, now_plus5min)
-    )['Items'] if not is_test else [{'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLinks': [{'link': 'https://svtplay.se'}]}]
-
-    if len(events) == 0:
-        return
-
-    event_strings = generate_event_strings(events)
-    tweets = build_tweets(event_strings)
-    
     status = None
     if not is_test:
         status = send_tweet(client, tweet=tweets[0])
@@ -91,5 +99,60 @@ def main(event, context):
         if not is_test:
             status = send_tweet(client, tweet=tweets[i], reply_tweet_id=status.id_str)
         output.append(tweets[i])
+
+    return output
+
+
+def post_to_bluesky(posts, is_test=True):
+    output = []
+    return output
+
+
+def post_to_target(posts, target, is_test=True):
+    if target == TWITTER:
+        output = post_to_twitter(posts, is_test)
+    elif target == BLUESKY:
+        output = post_to_bluesky(posts, is_test)
+    else:
+        raise ValueError("Unknown target '" + str(target) + "'")
+    return output
+
+
+def main(event, context):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('lys_events')
+
+    is_test = "isTest" in event
+    # override run date with value from the lambda event if present, otherwise default to now()
+    run_date = datetime.datetime.strptime(event['runDate'], DATETIME_CET_FORMAT) if "runDate" in event else (datetime.datetime.now() + datetime.timedelta(hours=1))
+    today = run_date
+    output = []
+
+    now = (today + datetime.timedelta(seconds=1)).strftime(DATETIME_CET_FORMAT)
+    now_plus5min = (today + datetime.timedelta(minutes=5)).replace(second=0).strftime(DATETIME_CET_FORMAT)
+
+    events = table.scan(
+        FilterExpression=Key('dateTimeCet').between(now, now_plus5min)
+    )['Items']
+
+    if len(events) == 0:
+        return
+
+    target = event['target'] if "target" in event else None
+
+    posts = []
+    try:
+        posts = generate_thread(events, target)
+    except ValueError as e:
+        output = ["Error: Unable to generate posts from events - " + str(e)]
+        return output
+
+    if len(posts) == 0:
+        return ["Error: Lys was unable to generate any post from " + str(len(events)) + " events"]
+
+    try:
+        output = post_to_target(posts, target, is_test)
+    except ValueError as e:
+        output = ["Error: Unable to generate posts from events - " + str(e)]
 
     return output

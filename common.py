@@ -1,9 +1,9 @@
-import tweepy
 import datetime
 from operator import itemgetter as i
 from functools import cmp_to_key
 import json
 import decimal
+import re
 
 DATETIME_CET_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
@@ -70,26 +70,44 @@ CLOCK_EMOJI = "\U0001F553"
 TV_EMOJI = "\U0001F4FA"
 ALERT_EMOJI = "\U0001F6A8"
 
-# tweepy
+BLUESKY="bluesky"
+TWITTER="twitter"
 
-def send_tweet(tweepy_client, tweet, reply_tweet_id=""):
-    if not reply_tweet_id:
-        return tweepy_client.create_tweet(text=tweet)
-    return tweepy_client.create_tweet(text=tweet, in_reply_to_tweet_id=reply_tweet_id)
 
-def create_tweepy_client(consumer_key, consumer_secret, access_token, access_token_secret, twitter_api_version):
-    if twitter_api_version == 2:
-        return tweepy.Client(
-            consumer_key=consumer_key,
-            consumer_secret=consumer_secret,
-            access_token=access_token,
-            access_token_secret=access_token_secret
-        )
-    else:
-        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-        auth.set_access_token(access_token, access_token_secret)
-        api = tweepy.API(auth)
-        return api
+def get_short_url(url):
+    link_text = re.sub(
+        r'https?:\/\/(www\.)?',
+        '',
+        url
+    )
+    idx_slash = link_text.find("/")
+    if idx_slash > -1:
+        link_text = link_text[:idx_slash]
+    return link_text
+
+
+def get_watch_link_string(watch_link, country, shorten_urls=False):
+    has_comment = False
+    watch_link_string = get_short_url(watch_link['link']) if shorten_urls else watch_link['link']
+    if "comment" in watch_link and watch_link['comment'] != "" and watch_link['comment'] != "Recommended link":
+        watch_link_string += " (" + watch_link['comment'] + ")"
+        has_comment = True
+
+    additional_comments = []
+    if "geoblocked" in watch_link and watch_link['geoblocked']:
+        additional_comments.append("geoblocked")
+    if "accountRequired" in watch_link and watch_link['accountRequired']:
+        account_comment = "account required: see "
+        account_help_link = "https://lyseurovision.github.io/help.html#account-" + country
+        account_comment += get_short_url(account_help_link) if shorten_urls else account_help_link
+        additional_comments.append(account_comment)
+    if len(additional_comments) > 0:
+        if not has_comment:
+            watch_link_string += " "
+        watch_link_string += "(" + ", ".join(additional_comments) + ")"
+
+    return watch_link_string
+
 
 def get_current_season_range_for_date(date):
     if date.month > 8:
@@ -100,6 +118,7 @@ def get_current_season_range_for_date(date):
         season_start = datetime.datetime(date.year - 1, 9, 1, 0, 0, 0)
         season_end = datetime.datetime(date.year, 3, 31, 23, 59, 59)
         return (season_start, season_end)
+
 
 def cmp(x, y):
     """
@@ -114,6 +133,7 @@ def cmp(x, y):
 
     return (x > y) - (x < y)
 
+
 def multikeysort(items, columns):
     comparers = [
         ((i(col[1:].strip()), -1) if col.startswith('-') else (i(col.strip()), 1))
@@ -126,6 +146,7 @@ def multikeysort(items, columns):
         )
         return next((result for result in comparer_iter if result), 0)
     return sorted(items, key=cmp_to_key(comparer))
+
 
 class DecimalEncoder(json.JSONEncoder):
     def default(self, obj):

@@ -9,7 +9,8 @@ except ImportError:
     pass
     
 from tweepy.errors import TweepyException, HTTPException
-from common import create_tweepy_client, send_tweet, DATETIME_CET_FORMAT, flag_emojis, CASSETTE_EMOJI, TROPHY_EMOJI, CLOCK_EMOJI, TV_EMOJI
+from common import DATETIME_CET_FORMAT, flag_emojis, CASSETTE_EMOJI, TROPHY_EMOJI, CLOCK_EMOJI, TV_EMOJI, BLUESKY, TWITTER
+from twitter_utils import create_tweepy_client, send_tweet
 
 GENERIC_EVENT_STRING = "{}\n---------\n" + CASSETTE_EMOJI + " {}\n" + TROPHY_EMOJI + " {}\n" + CLOCK_EMOJI + " {} CET\n---------\n" + TV_EMOJI + " {}"
 
@@ -73,6 +74,10 @@ def generate_daily_tweet_thread(events, is_morning):
         return tweets
 
 
+def generate_daily_bluesky_thread(events, is_morning):
+    return []
+
+
 def post_tweet(client, tweet, reply_tweet_id):
     try:
         response = send_tweet(client, tweet, reply_tweet_id)
@@ -96,36 +101,28 @@ def send_errors_via_dm(errors, total_tweets, failed_tweets):
     return
 
 
-def main(event, context):
+def generate_thread(events, is_morning, target):
+    posts = []
+    if target == TWITTER:
+        posts = generate_daily_tweet_thread(events, is_morning)
+    elif target == BLUESKY:
+        posts = generate_daily_bluesky_thread(events, is_morning)
+    else:
+        raise ValueError("Unknown target '" + str(target) + "'")
+    return posts
+
+
+def post_to_twitter(tweets, is_test=True):
+    output = []
+    errors = []
+    failed_tweets = 0
+    last_tweet_id = None
+
     consumer_key = os.environ['TWITTER_CONSUMER_KEY']
     consumer_secret = os.environ['TWITTER_CONSUMER_SECRET']
     access_token = os.environ['TWITTER_ACCESS_TOKEN']
     access_token_secret = os.environ['TWITTER_ACCESS_SECRET']
-
     client = create_tweepy_client(consumer_key, consumer_secret, access_token, access_token_secret, twitter_api_version=2)
-
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('lys_events')
-
-    is_test = "isTest" in event
-    today = datetime.datetime.now() + datetime.timedelta(hours=1)
-    output = []
-
-    today_morning = today.strftime(DATETIME_CET_FORMAT)
-    today_evening = today.replace(hour=23, minute=59, second=59).strftime(DATETIME_CET_FORMAT)
-
-    events = table.scan(
-        FilterExpression=Key('dateTimeCet').between(today_morning, today_evening)
-    )['Items']
-
-    if len(events) == 0:
-        return
-
-    tweets = generate_daily_tweet_thread(events, is_morning=(today.hour < 12))
-
-    errors = []
-    failed_tweets = 0
-    last_tweet_id = None
 
     output.append(tweets[0])
     if not is_test:
@@ -148,7 +145,59 @@ def main(event, context):
             else:
                 last_tweet_id = tweet_id
 
-    if len(errors) > 0:
-        send_errors_via_dm(errors, len(tweets), failed_tweets)
+    return output
+
+
+def post_to_bluesky(posts, is_test=True):
+    output = []
+    return output
+
+
+def post_to_target(posts, target, is_test=True):
+    if target == TWITTER:
+        output = post_to_twitter(posts, is_test)
+    elif target == BLUESKY:
+        output = post_to_bluesky(posts, is_test)
+    else:
+        raise ValueError("Unknown target '" + str(target) + "'")
+    return output
+
+
+def main(event, context):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('lys_events')
+
+    is_test = "isTest" in event
+    # override run date with value from the lambda event if present, otherwise default to now()
+    run_date = datetime.datetime.strptime(event['runDate'], DATETIME_CET_FORMAT) if "runDate" in event else (datetime.datetime.now() + datetime.timedelta(hours=1))
+    today = run_date
+    output = []
+
+    today_morning = today.strftime(DATETIME_CET_FORMAT)
+    today_evening = today.replace(hour=23, minute=59, second=59).strftime(DATETIME_CET_FORMAT)
+
+    events = table.scan(
+        FilterExpression=Key('dateTimeCet').between(today_morning, today_evening)
+    )['Items']
+
+    if len(events) == 0:
+        return
+
+    target = event['target'] if "target" in event else None
+
+    posts = []
+    try:
+        posts = generate_thread(events, is_morning=(today.hour < 12), target=target)
+    except ValueError as e:
+        output = ["Error: Unable to generate post(s) from events - " + str(e)]
+        return output
+
+    if len(posts) == 0:
+        return ["Error: Lys was unable to generate any post from " + str(len(events)) + " events"]
+
+    try:
+        output = post_to_target(posts, target=target, is_test=is_test)
+    except ValueError as e:
+        output = ["Error: Unable to send post(s) to target - " + str(e)]
 
     return output
