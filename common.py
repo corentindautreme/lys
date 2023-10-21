@@ -69,6 +69,7 @@ TROPHY_EMOJI = "\U0001F3C6"
 CLOCK_EMOJI = "\U0001F553"
 TV_EMOJI = "\U0001F4FA"
 ALERT_EMOJI = "\U0001F6A8"
+DOWN_ARROW_EMOJI = "\U00002B07\U0000FE0F"
 
 BLUESKY="bluesky"
 TWITTER="twitter"
@@ -107,6 +108,15 @@ def get_watch_link_string(watch_link, country, shorten_urls=False):
         watch_link_string += "(" + ", ".join(additional_comments) + ")"
 
     return watch_link_string
+
+
+def get_first_watch_link(event, live=True):
+    links = event['watchLinks']
+    if live:
+        links = list(filter(lambda l: l['live'], links))
+    if len(links) == 0:
+        return None
+    return links[0]['link']
 
 
 def get_current_season_range_for_date(date):

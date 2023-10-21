@@ -9,6 +9,7 @@ except ImportError:
 
 from common import flag_emojis, DATETIME_CET_FORMAT, BLUESKY, TWITTER
 from twitter_utils import create_tweepy_client, send_tweet
+from bluesky_utils import get_session, generate_post, publish_post
 
 def generate_weekly_post(events):
     # list of (weekday, country) tuples
@@ -56,8 +57,11 @@ def post_to_twitter(twitter_post):
     send_tweet(client, tweet=twitter_post)
 
 
-def post_to_bluesky():
-    pass
+def post_to_bluesky(post_body):
+    session = get_session()
+
+    post = generate_post(post_body)
+    publish_post(session, post)
 
 
 def post_to_target(post, target):
