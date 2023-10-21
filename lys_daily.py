@@ -9,12 +9,13 @@ except ImportError:
     pass
     
 from tweepy.errors import TweepyException, HTTPException
-from common import DATETIME_CET_FORMAT, flag_emojis, CASSETTE_EMOJI, TROPHY_EMOJI, CLOCK_EMOJI, TV_EMOJI, BLUESKY, TWITTER
+from common import DATETIME_CET_FORMAT, flag_emojis, CASSETTE_EMOJI, TROPHY_EMOJI, CLOCK_EMOJI, TV_EMOJI, DOWN_ARROW_EMOJI, BLUESKY, TWITTER, get_watch_link_string, get_first_watch_link
 from twitter_utils import create_tweepy_client, send_tweet
+from bluesky_utils import get_session, get_facets_for_event_links_in_string, generate_post, publish_post
 
 GENERIC_EVENT_STRING = "{}\n---------\n" + CASSETTE_EMOJI + " {}\n" + TROPHY_EMOJI + " {}\n" + CLOCK_EMOJI + " {} CET\n---------\n" + TV_EMOJI + " {}"
 
-def generate_event_string(event, twitter_post):
+def generate_event_string(event, post, shorten_urls=False):
     time = datetime.datetime.strptime(event['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%H:%M")
     watch_link_string = ""
     try:
@@ -24,14 +25,7 @@ def generate_event_string(event, twitter_post):
             if watch_link_string != "":
                 watch_link_string += " OR "
             if "link" in watch_link:
-                watch_link_string += watch_link['link'] + ((" (" + watch_link['comment'] + ")") if "comment" in watch_link and watch_link['comment'] != "" and watch_link['comment'] != "Recommended link" else "")
-            additional_comments = []
-            if "geoblocked" in watch_link and watch_link['geoblocked']:
-                additional_comments.append("geoblocked")
-            if "accountRequired" in watch_link and watch_link['accountRequired']:
-                additional_comments.append("account required: https://lyseurovision.github.io/help.html#account-" + event['country'])
-            if len(additional_comments) > 0:
-                watch_link_string += " (" + ", ".join(additional_comments) + ")"
+                watch_link_string += get_watch_link_string(watch_link, event['country'], shorten_urls)
         watch_link_string += "."
     except KeyError:
         pass
@@ -42,40 +36,55 @@ def generate_event_string(event, twitter_post):
         country = event['country'].upper()
     else:
         country = flag_emojis[event['country']] + " " + event['country'].upper()
-    return twitter_post + GENERIC_EVENT_STRING.format(country, event['name'], event['stage'], time, watch_link_string)
+    return post + GENERIC_EVENT_STRING.format(country, event['name'], event['stage'], time, watch_link_string)
 
 
-def generate_daily_tweet_thread(events, is_morning):
-    twitter_post = ""
+def generate_daily_thread_posts(events, is_morning, shorten_urls=False):
+    post = ""
 
     if is_morning:
-        twitter_post = "TODAY | "
+        post = "TODAY | "
     else:
-        twitter_post = "TONIGHT | "
+        post = "TONIGHT | "
 
     multi_parter_regex = re.compile(r".*\(part [0-9]+\)")
     event_count = len(list(filter(lambda e: re.match(multi_parter_regex, e['stage']) is None, events)))
 
     if len(events) == 1:
         event = events[0]
-        twitter_post = generate_event_string(event, twitter_post)
-        return [twitter_post]
+        post = generate_event_string(event, post, shorten_urls)
+        return [post]
     else:
-        tweets = []
-        tweets.append(twitter_post + str(event_count) + " selection show{} across Europe{}!".format(
+        posts = []
+        posts.append((post + str(event_count) + " selection show{} across Europe{}! (thread " + DOWN_ARROW_EMOJI + ")").format(
             "s" if event_count > 1 else "",
             " and Australia" if any("Australia" == e['country'] for e in events) else "")
         )
 
-        for event in sorted(events, key=lambda e: (e['dateTimeCet'], e['country'])):
-            event_string = generate_event_string(event, twitter_post)
-            tweets.append(event_string)
+        for event in events:
+            event_string = generate_event_string(event, post, shorten_urls)
+            posts.append(event_string)
 
-        return tweets
+        return posts
+
+
+def generate_daily_twitter_thread(events, is_morning):
+    return generate_daily_thread_posts(events, is_morning)
 
 
 def generate_daily_bluesky_thread(events, is_morning):
-    return []
+    post_bodies = generate_daily_thread_posts(events, is_morning, shorten_urls=True)
+    posts = []
+    # this will either be the only post (if only one event) or the introduction post ("X events across Europe!")
+    posts.append(generate_post(post_bodies[0]))
+    if len(post_bodies) > 1:
+        for idx, body in enumerate(post_bodies[1:]):
+            event = events[idx]
+            # extract link facets from post
+            facets = get_facets_for_event_links_in_string([event], body)
+            first_link = get_first_watch_link(event)
+            posts.append(generate_post(body, facets, include_card=first_link is not None, url_for_card=first_link))
+    return posts
 
 
 def post_tweet(client, tweet, reply_tweet_id):
@@ -104,7 +113,7 @@ def send_errors_via_dm(errors, total_tweets, failed_tweets):
 def generate_thread(events, is_morning, target):
     posts = []
     if target == TWITTER:
-        posts = generate_daily_tweet_thread(events, is_morning)
+        posts = generate_daily_thread_posts(events, is_morning)
     elif target == BLUESKY:
         posts = generate_daily_bluesky_thread(events, is_morning)
     else:
@@ -150,6 +159,22 @@ def post_to_twitter(tweets, is_test=True):
 
 def post_to_bluesky(posts, is_test=True):
     output = []
+    session = get_session()
+
+    # publish the first post of the thread
+    if not is_test:
+        parent = root = publish_post(session, posts[0])
+    output.append(posts[0]['text'])
+
+    for post in posts[1:]:
+        if not is_test:
+            post['reply'] = {
+                "root": root,
+                "parent": parent
+            }
+            parent = publish_post(session, post)
+        output.append(post['text'])
+
     return output
 
 
@@ -187,7 +212,7 @@ def main(event, context):
 
     posts = []
     try:
-        posts = generate_thread(events, is_morning=(today.hour < 12), target=target)
+        posts = generate_thread(sorted(events, key=lambda e: (e['dateTimeCet'], e['country'])), is_morning=(today.hour < 12), target=target)
     except ValueError as e:
         output = ["Error: Unable to generate post(s) from events - " + str(e)]
         return output

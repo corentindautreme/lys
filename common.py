@@ -110,6 +110,15 @@ def get_watch_link_string(watch_link, country, shorten_urls=False):
     return watch_link_string
 
 
+def get_first_watch_link(event, live=True):
+    links = event['watchLinks']
+    if live:
+        links = list(filter(lambda l: l['live'], links))
+    if len(links) == 0:
+        return None
+    return links[0]['link']
+
+
 def get_current_season_range_for_date(date):
     if date.month > 8:
         season_start = datetime.datetime(date.year, 9, 1, 0, 0, 0)

@@ -7,8 +7,9 @@ try:
 except ImportError:
     pass
     
-from common import DATETIME_CET_FORMAT, flag_emojis, ALERT_EMOJI, DOWN_ARROW_EMOJI, BLUESKY, TWITTER, get_watch_link_string
+from common import DATETIME_CET_FORMAT, flag_emojis, ALERT_EMOJI, DOWN_ARROW_EMOJI, BLUESKY, TWITTER, get_watch_link_string, get_short_url
 from twitter_utils import create_tweepy_client, send_tweet
+from bluesky_utils import get_session, get_facets_for_event_links_in_string, generate_post, publish_post
 
 
 def generate_event_string(event, shorten_urls=False):
@@ -60,7 +61,7 @@ def build_twitter_posts(event_strings):
 def build_bluesky_posts(events):
     post_header = ALERT_EMOJI + " 5 MINUTES REMINDER!"
     posts = []
-    event_idx = []
+    posts_events = []
     is_thread=False
     tmp_post = ""
     post_events = []
@@ -71,7 +72,7 @@ def build_bluesky_posts(events):
             # add the event string to the current post
             tmp_post += "\n---------" + event_string
             # flag the index of the event in the list as part of the current post
-            post_events.append(idx)
+            post_events.append(event)
         else:
             # we're ready to save the first post
             # add the header
@@ -87,10 +88,10 @@ def build_bluesky_posts(events):
             # the post is complete, we save it and save the indices of the events that are part of it
             post += tmp_post
             posts.append(post)
-            event_idx.append(post_events)
+            posts_events.append(post_events)
             # we reset the tmp post, and open it with the next event (the one we couldn't add to the previous post)
             tmp_post = "\n---------" + event_string
-            post_events = [idx]
+            post_events = [event]
     # if we're out of events but still have event strings we haven't saved to a post, we do it now
     if len(tmp_post) > 0:
         post = post_header
@@ -98,10 +99,10 @@ def build_bluesky_posts(events):
             post += " (cont.)"
         post += tmp_post
         posts.append(post)
-        event_idx.append(post_events)
+        posts_events.append(post_events)
 
     # finally, we return the complete list of posts, alongside the indices of the events that compose it
-    return (posts, event_idx)
+    return (posts, posts_events)
 
 
 def generate_twitter_thread(events):
@@ -110,11 +111,15 @@ def generate_twitter_thread(events):
 
 
 def generate_bluesky_thread(events):
-    # TODO identify which post of the thread includes which event (to add right facets in right post)
-    # TODO return a list of list, that includes for each post a list of the indexes of the events that are present in the post?
-    # ex: posts = ["Post0=event 0, event 1", "Post1=event 2"], event_idx = [[0, 1], [2]]
-    # => we can then iterate on each list of event_idx and generate the facets for each post individually
-    return []
+    (post_bodies, post_events) = build_bluesky_posts(events)
+    posts = []
+    for idx, body in enumerate(post_bodies):
+        # get the events included in the post
+        events = post_events[idx]
+        # extract link facets from post
+        facets = get_facets_for_event_links_in_string(events, body)
+        posts.append(generate_post(body, facets, include_card=False))
+    return posts
 
 
 def generate_thread(events, target):
@@ -153,6 +158,22 @@ def post_to_twitter(tweets, is_test=True):
 
 def post_to_bluesky(posts, is_test=True):
     output = []
+    session = get_session()
+
+    # publish the first post of the thread
+    if not is_test:
+        parent = root = publish_post(session, posts[0])
+    output.append(posts[0]['text'])
+
+    for post in posts[1:]:
+        if not is_test:
+            post['reply'] = {
+                "root": root,
+                "parent": parent
+            }
+            parent = publish_post(session, post)
+        output.append(post['text'])
+
     return output
 
 

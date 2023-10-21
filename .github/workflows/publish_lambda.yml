@@ -32,10 +32,10 @@ jobs:
     - name: Package (daily, weekly, 5 minutes & dump)
       if: success()
       run: |
-        zip -ur lys_daily.zip lys_daily.py common.py twitter_utils.py
-        zip -ur lys_weekly.zip lys_weekly.py common.py twitter_utils.py
-        zip -ur lys_5minutes.zip lys_5minutes.py common.py twitter_utils.py
-        zip -ur lys_dump.zip lys_dump.py common.py twitter_utils.py
+        zip -ur lys_daily.zip lys_daily.py common.py twitter_utils.py bluesky_utils.py
+        zip -ur lys_weekly.zip lys_weekly.py common.py twitter_utils.py bluesky_utils.py
+        zip -ur lys_5minutes.zip lys_5minutes.py common.py twitter_utils.py bluesky_utils.py
+        zip -ur lys_dump.zip lys_dump.py common.py twitter_utils.py bluesky_utils.py
         cd lib
         zip -ur ../lys_daily.zip *
         zip -ur ../lys_weekly.zip *
