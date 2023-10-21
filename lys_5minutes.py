@@ -7,42 +7,43 @@ try:
 except ImportError:
     pass
     
-from common import DATETIME_CET_FORMAT, flag_emojis, ALERT_EMOJI, BLUESKY, TWITTER, get_watch_link_string
+from common import DATETIME_CET_FORMAT, flag_emojis, ALERT_EMOJI, DOWN_ARROW_EMOJI, BLUESKY, TWITTER, get_watch_link_string
 from twitter_utils import create_tweepy_client, send_tweet
+
+
+def generate_event_string(event, shorten_urls=False):
+    flag = (flag_emojis[event['country']] + " ") if event['country'] in flag_emojis else ""
+    watch_link_string = ""
+    try:
+        watch_links = event['watchLinks']
+        # tweeting only links that can be watched live
+        for watch_link in list(filter(lambda wl: 'live' in wl and wl['live'], watch_links)):
+            if watch_link_string != "":
+                watch_link_string += " OR "
+            if "link" in watch_link:
+                watch_link_string += get_watch_link_string(watch_link, event['country'], shorten_urls)
+    except KeyError:
+        pass
+    if watch_link_string == "":    
+        watch_link_string = "(no watch link found)"
+    else:
+        watch_link_string = "(" + watch_link_string + ")"
+    event_string = "\n{}{} - {} {}".format(flag, event['name'], event['stage'], watch_link_string)
+    return event_string
 
 
 def generate_twitter_event_strings(events):
     event_strings = []
     for event in events:
-        flag = (flag_emojis[event['country']] + " ") if event['country'] in flag_emojis else ""
-        watch_link_string = ""
-        try:
-            watch_links = event['watchLinks']
-            # tweeting only links that can be watched live
-            for watch_link in list(filter(lambda wl: 'live' in wl and wl['live'], watch_links)):
-                if watch_link_string != "":
-                    watch_link_string += " OR "
-                if "link" in watch_link:
-                    watch_link_string += watch_link['link'] + ((" (" + watch_link['comment'] + ")") if "comment" in watch_link and watch_link['comment'] != "" and watch_link['comment'] != "Recommended link" else "")
-                additional_comments = []
-                if "geoblocked" in watch_link and watch_link['geoblocked']:
-                    additional_comments.append("geoblocked")
-                if "accountRequired" in watch_link and watch_link['accountRequired']:
-                    additional_comments.append("account required: https://lyseurovision.github.io/help.html#account-" + event['country'])
-                if len(additional_comments) > 0:
-                    watch_link_string += " (" + ", ".join(additional_comments) + ")"
-        except KeyError:
-            pass
-        if watch_link_string == "":    
-            watch_link_string = "(no watch link found)"
-        else:
-            watch_link_string = "(" + watch_link_string + ")"
-        event_string = "\n{}{} - {} {}".format(flag, event['name'], event['stage'], watch_link_string)
-        event_strings.append(event_string)
+        event_strings.append(generate_event_string(event))
     return event_strings
 
 
-def build_tweets(event_strings):
+def generate_bluesky_event_string(event):
+    return generate_event_string(event, shorten_urls=True)
+
+
+def build_twitter_posts(event_strings):
     tweets = []
     tweet = ALERT_EMOJI + " 5 MINUTES REMINDER!"
     for string in event_strings:
@@ -56,16 +57,63 @@ def build_tweets(event_strings):
     return tweets
 
 
+def build_bluesky_posts(events):
+    post_header = ALERT_EMOJI + " 5 MINUTES REMINDER!"
+    posts = []
+    event_idx = []
+    is_thread=False
+    tmp_post = ""
+    post_events = []
+    for idx, event in enumerate(events):
+        event_string = generate_bluesky_event_string(event)
+        # bluesky character limit = 300; leaving room for the header
+        if len(tmp_post+event_string) < 260:
+            # add the event string to the current post
+            tmp_post += "\n---------" + event_string
+            # flag the index of the event in the list as part of the current post
+            post_events.append(idx)
+        else:
+            # we're ready to save the first post
+            # add the header
+            post = post_header
+            # if we're here, we're about to create/continue a thread, because the next event doesn't fit in the current post
+            if not is_thread:
+                # if we haven't started a thread yet, this means this is the first post of the thread
+                post += " (thread " + DOWN_ARROW_EMOJI + ")"
+            else:
+                # otherwise, we're just adding another post to the thread
+                post += " (cont.)"
+            is_thread = True
+            # the post is complete, we save it and save the indices of the events that are part of it
+            post += tmp_post
+            posts.append(post)
+            event_idx.append(post_events)
+            # we reset the tmp post, and open it with the next event (the one we couldn't add to the previous post)
+            tmp_post = "\n---------" + event_string
+            post_events = [idx]
+    # if we're out of events but still have event strings we haven't saved to a post, we do it now
+    if len(tmp_post) > 0:
+        post = post_header
+        if is_thread:
+            post += " (cont.)"
+        post += tmp_post
+        posts.append(post)
+        event_idx.append(post_events)
+
+    # finally, we return the complete list of posts, alongside the indices of the events that compose it
+    return (posts, event_idx)
+
+
 def generate_twitter_thread(events):
     event_strings = generate_twitter_event_strings(events)
-    return build_tweets(event_strings)
+    return build_twitter_posts(event_strings)
 
 
 def generate_bluesky_thread(events):
     # TODO identify which post of the thread includes which event (to add right facets in right post)
-    # TODO return a list of list, that includes for each post a list of the indexes of the links that are present in the post?
-    # ex: posts = ["Post0=link 0, link 1", "Post1=link 2"], links_idx = [[0, 1], [2]]
-    # => we can then iterate on each list of links_idx and generate the facets for each post individually
+    # TODO return a list of list, that includes for each post a list of the indexes of the events that are present in the post?
+    # ex: posts = ["Post0=event 0, event 1", "Post1=event 2"], event_idx = [[0, 1], [2]]
+    # => we can then iterate on each list of event_idx and generate the facets for each post individually
     return []
 
 
