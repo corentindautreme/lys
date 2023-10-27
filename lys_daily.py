@@ -75,15 +75,20 @@ def generate_daily_twitter_thread(events, is_morning):
 def generate_daily_bluesky_thread(events, is_morning):
     post_bodies = generate_daily_thread_posts(events, is_morning, shorten_urls=True)
     posts = []
-    # this will either be the only post (if only one event) or the introduction post ("X events across Europe!")
-    posts.append(generate_post(post_bodies[0]))
+    # pad the event by one so that we can reference them by idx in the following loop
     if len(post_bodies) > 1:
-        for idx, body in enumerate(post_bodies[1:]):
+        events.insert(0, {})
+        
+    for idx, body in enumerate(post_bodies):
+        facets = []
+        first_link = None
+        # only include facets if the post contains an event (to avoid searching facets for the initial post of a thread)
+        if "CET" in body:
             event = events[idx]
             # extract link facets from post
             facets = get_facets_for_event_links_in_string([event], body)
             first_link = get_first_watch_link(event)
-            posts.append(generate_post(body, facets, include_card=first_link is not None, url_for_card=first_link))
+        posts.append(generate_post(body, facets, include_card=first_link is not None, url_for_card=first_link))
     return posts
 
 
