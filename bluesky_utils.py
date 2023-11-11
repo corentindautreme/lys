@@ -78,12 +78,14 @@ def get_facets(link_spans, menion_spans=[]):
     return facets
 
 
-def get_facets_for_event_links_in_string(events, string):
+def get_facets_for_event_links_in_string(events, string, live_links_only=True):
     link_descriptions = []
 
     for event in events:
         # extract links to insert in the post alongside their associated string
         for link in event['watchLinks']:
+            if live_links_only and ('live' not in link or not link['live']):
+                continue
             link_string = get_short_url(link['link'])
             link_descriptions.append({'text': link_string, 'url': link['link']})
             if 'accountRequired' in link and link['accountRequired']:
