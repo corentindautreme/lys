@@ -20,7 +20,7 @@ flag_emojis = {
     "Belarus": "\U0001F1E7\U0001F1FE",
     "Switzerland": "\U0001F1E8\U0001F1ED",
     "Cyprus": "\U0001F1E8\U0001F1FE",
-    "Czech Republic": "\U0001F1E8\U0001F1FF",
+    "Czechia": "\U0001F1E8\U0001F1FF",
     "Germany": "\U0001F1E9\U0001F1EA",
     "Denmark": "\U0001F1E9\U0001F1F0",
     "Estonia": "\U0001F1EA\U0001F1EA",
