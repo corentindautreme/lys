@@ -40,7 +40,7 @@ class DailyGenerator(Generator):
                 if watch_link_string != "":
                     watch_link_string += " OR "
                 if "link" in watch_link:
-                    watch_link_string += get_watch_link_string(watch_link, event['country'])
+                    watch_link_string += self.get_watch_link_string(watch_link, event['country'])
             watch_link_string += "."
         except KeyError:
             pass
@@ -51,8 +51,20 @@ class DailyGenerator(Generator):
             country = event['country'].upper()
         else:
             country = flag_emojis[event['country']] + " " + event['country'].upper()
-        return post + GENERIC_EVENT_STRING.format(country, event['name'], event['stage'], time, watch_link_string)
+        
+        post = ""
+
+        if is_morning:
+            post = "TODAY | "
+        else:
+            post = "TONIGHT | "
+
+        return post + self.GENERIC_EVENT_STRING.format(country, event['name'], event['stage'], time, watch_link_string)
 
 
-    def generate_single_post(self, events):
-        raise NotImplementedError
+    def is_single_post(self, events):
+        return len(events) == 1
+
+
+    def generate_single_post(self, events, is_morning):
+        return self.generate_post(events[0], is_morning)

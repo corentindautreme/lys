@@ -6,7 +6,7 @@ from common import DATETIME_CET_FORMAT, flag_emojis
 
 class WeeklyGenerator(Generator):
     def __init__(self, formatter):
-        super().__init__(formatter, single_post=True)
+        super().__init__(formatter)
 
 
     def has_header(self, events):
@@ -21,7 +21,11 @@ class WeeklyGenerator(Generator):
         raise NotImplementedError
 
 
-    def generate_single_post(self, events):
+    def is_single_post(self, events):
+        return True
+
+
+    def generate_single_post(self, events, is_morning):
         # list of (weekday, country) tuples
         simplified_events = list(map(lambda e: (datetime.datetime.strptime(e['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%A %d"), e['country'] + ('*' if "Final" in e['stage'] else '')), events))
         # indicates if any event is a final

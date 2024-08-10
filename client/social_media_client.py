@@ -6,5 +6,5 @@ class SocialMediaClient(ABC):
 		pass
 
 	@abstractmethod
-	def publish(self, post, reply_post_id="", parent_post_id=""):
+	def publish(self, post, reply_post_id="", root_post_id=""):
 		pass
