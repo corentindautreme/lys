@@ -23,6 +23,6 @@ class Publisher(ABC):
 
 
     def publish(self, events, run_date):
-        is_morning = is_morning(run_date)
-        thread = generator.generate_thread(events, is_morning)
-        return publish_thread(thread)
+        morning = is_morning(run_date)
+        thread = self.generator.generate_thread(events, morning)
+        return self.publish_thread(thread)

@@ -35,6 +35,7 @@ class DailyPostsGenerationTest(unittest.TestCase):
         self.assertEqual(tweets[2], "TODAY | \U0001F1F3\U0001F1F4 NORWAY\n---------\n\U0001F4FC Melodi Grand Prix\n\U0001F3C6 Heat 5\n\U0001F553 19:50 CET\n---------\n\U0001F4FA https://nrk.no/mgp.")
         self.assertEqual(tweets[3], "TODAY | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Heat 2\n\U0001F553 20:00 CET\n---------\n\U0001F4FA https://svtplay.se.")
 
+
     def test_when_multiple_events_then_should_sort_tweets_by_start_time_and_country(self):
         events = [
             {'country': 'Norway', 'name': 'Melodi Grand Prix', 'stage': 'Final', 'dateTimeCet': '2021-03-13T19:50:00', 'watchLinks': [{'link': 'https://nrk.no/mgp', 'comment': 'Recommended link', 'live': 1}]},
@@ -48,6 +49,7 @@ class DailyPostsGenerationTest(unittest.TestCase):
         self.assertEqual(tweets[2], "TODAY | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Final\n\U0001F553 20:00 CET\n---------\n\U0001F4FA https://svtplay.se.")
         self.assertEqual(tweets[3], "TODAY | \U0001F1E9\U0001F1F0 DENMARK\n---------\n\U0001F4FC Dansk Melodi Grand Prix\n\U0001F3C6 Final\n\U0001F553 20:05 CET\n---------\n\U0001F4FA https://tv.dr.dk.")
 
+
     def test_when_events_include_multi_parter_then_should_count_the_multi_parter_as_only_one_event_in_the_initial_tweet(self):
         events = [
             {'country': 'Estonia', 'name': 'Eesti Laul', 'stage': 'Semi-final 1', 'dateTimeCet': '2021-03-13T18:30:00', 'watchLinks': [{'link': 'https://etv.err.ee/', 'comment': 'Recommended link', 'live': 1}]},
@@ -58,6 +60,7 @@ class DailyPostsGenerationTest(unittest.TestCase):
         self.assertEqual(len(tweets), 4)
         self.assertEqual(tweets[0], "TODAY | 2 selection shows across Europe! (thread \U00002B07\U0000FE0F)")
 
+
     def test_when_events_only_contains_a_multi_parter_show_then_should_count_the_multi_parter_show_as_only_one_event_in_the_initial_tweet(self):
         events = [
             {'country': 'Estonia', 'name': 'Eesti Laul', 'stage': 'Semi-final 1', 'dateTimeCet': '2021-03-13T18:30:00', 'watchLinks': [{'link': 'https://etv.err.ee/', 'comment': 'Recommended link', 'live': 1}]},
@@ -67,6 +70,7 @@ class DailyPostsGenerationTest(unittest.TestCase):
         self.assertEqual(len(tweets), 3)
         self.assertEqual(tweets[0], "TODAY | 1 selection show across Europe! (thread \U00002B07\U0000FE0F)")
 
+
     def test_when_event_contains_multiple_watch_links_should_generate_one_tweet_that_includes_all_links_and_comments(self):
         events = [
             {'country': 'Norway', 'name': 'Melodi Grand Prix', 'stage': 'Heat 1', 'dateTimeCet': '2021-02-13T19:50:00', 'watchLinks': [{'link': 'https://nrk.no/mgp', 'comment': 'A first link', 'live': 1}, {'link': 'https://tv.nrk.no', 'comment': 'Another link', 'live': 1}]}
@@ -74,6 +78,7 @@ class DailyPostsGenerationTest(unittest.TestCase):
         tweets = generate_daily_thread_posts(events, is_morning=True)
         self.assertEqual(len(tweets), 1)
         self.assertEqual(tweets[0], "TODAY | \U0001F1F3\U0001F1F4 NORWAY\n---------\n\U0001F4FC Melodi Grand Prix\n\U0001F3C6 Heat 1\n\U0001F553 19:50 CET\n---------\n\U0001F4FA https://nrk.no/mgp (A first link) OR https://tv.nrk.no (Another link).")
+
 
     def test_when_event_contains_multiple_watch_links_should_generate_one_tweet_that_includes_all_links_and_valid_comments(self):
         events = [
@@ -150,6 +155,7 @@ class DailyPostsGenerationTest(unittest.TestCase):
         self.assertIsNotNone(e)
         self.assertEqual(str(e), "Unknown target 'facebook'")
 
+
     def test_when_posting_to_none_target_should_raise_value_error(self):
         e = None
         try:
@@ -158,6 +164,7 @@ class DailyPostsGenerationTest(unittest.TestCase):
             e = err
         self.assertIsNotNone(e)
         self.assertEqual(str(e), "Unknown target 'None'")
+
 
     def test_when_posting_to_unknown_target_should_raise_value_error(self):
         e = None

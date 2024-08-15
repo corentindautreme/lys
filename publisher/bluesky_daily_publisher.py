@@ -5,4 +5,4 @@ from formatter.bluesky_formatter import BlueskyFormatter
 
 class BlueskyDailyPublisher(Publisher):
     def __init__(self):
-        super().__init__(BlueskyClient(), DailyGenerator(formatter=BlueskyFormatter(), shorten_urls=True))
+        super().__init__(BlueskyClient(), DailyGenerator(formatter=BlueskyFormatter(include_link_card=True), shorten_urls=True))

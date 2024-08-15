@@ -5,7 +5,7 @@ from generator.generator import Generator
 from common import DATETIME_CET_FORMAT, flag_emojis
 
 class WeeklyGenerator(Generator):
-    def __init__(self, formatter):
+    def __init__(self, formatter=None):
         super().__init__(formatter)
 
 

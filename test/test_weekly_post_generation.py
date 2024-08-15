@@ -8,6 +8,7 @@ class WeeklyPostGenerationTest(unittest.TestCase):
         (post, output) = generate_weekly_post(events)
         self.assertEqual(post, "\U0001F5D3 COMING UP NEXT WEEK:\n\n - Saturday 06: \U0001F1F8\U0001F1EA")
 
+
     def test_when_multiple_events_then_post_should_contain_them_all(self):
         events = [
             {'country': 'Estonia', 'name': 'Eesti Laul', 'stage': 'Semi-final 1', 'dateTimeCet': '2021-02-02T20:00:00', 'watchLink': 'https://err.tv'},
@@ -36,6 +37,7 @@ class WeeklyPostGenerationTest(unittest.TestCase):
         ]
         (post, output) = generate_weekly_post(events)
         self.assertEqual(post, "\U0001F5D3 COMING UP NEXT WEEK (* = final):\n\n - Tuesday 02: \U0001F1EA\U0001F1EA\n - Saturday 06: (FYR Macedonia*)\U0001F1F8\U0001F1EA")
+
 
     def test_when_events_include_multiple_events_for_one_country_the_country_should_only_appear_once_in_the_post(self):
         events = [

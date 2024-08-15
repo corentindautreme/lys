@@ -2,10 +2,11 @@ import re
 import datetime
 
 from generator.generator import Generator
-from common import DATETIME_CET_FORMAT, flag_emojis, DOWN_ARROW_EMOJI
+from utils.time_utils import DATETIME_CET_FORMAT
+from common import flag_emojis, DOWN_ARROW_EMOJI
 
 class DailyGenerator(Generator):
-    def __init__(self, formatter, shorten_urls=False):
+    def __init__(self, formatter=None, shorten_urls=False):
         super().__init__(formatter, shorten_urls=shorten_urls)
 
 
@@ -32,20 +33,11 @@ class DailyGenerator(Generator):
 
     def generate_post(self, event, is_morning):
         time = datetime.datetime.strptime(event['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%H:%M")
-        watch_link_string = ""
-        try:
-            watch_links = event['watchLinks']
-            # including only links that can be watched live
-            for watch_link in list(filter(lambda wl: 'live' in wl and wl['live'], watch_links)):
-                if watch_link_string != "":
-                    watch_link_string += " OR "
-                if "link" in watch_link:
-                    watch_link_string += self.get_watch_link_string(watch_link, event['country'])
-            watch_link_string += "."
-        except KeyError:
-            pass
+        watch_link_string = self.get_live_watch_links_string(event)
         if watch_link_string == "":    
             watch_link_string = "(no watch link found)"
+        else:
+            watch_link_string += "."
         if event['country'] not in flag_emojis:
             output.append("WARNING: no emoji found for country " + country)
             country = event['country'].upper()
