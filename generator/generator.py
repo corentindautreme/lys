@@ -35,10 +35,10 @@ class Generator(ABC):
         return watch_link_string
 
 
-    def get_live_watch_links_string(self, event, include_comments=True):
+    def get_live_watch_links_string(self, event, include_comments=True, include_link_count=None):
         watch_link_string = ""
         try:
-            watch_links = event['watchLinks']
+            watch_links = event['watchLinks'][:include_link_count]
             # including only links that can be watched live
             for watch_link in list(filter(lambda wl: 'live' in wl and wl['live'], watch_links)):
                 if watch_link_string != "":

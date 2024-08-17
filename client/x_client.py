@@ -3,6 +3,7 @@ import os
 import tweepy
 
 from client.social_media_client import SocialMediaClient
+from client.publish_error import PublishError
 
 class XClient(SocialMediaClient):
     def create_session(self):
@@ -31,4 +32,13 @@ class XClient(SocialMediaClient):
 
 
     def publish(self, post, reply_post_id="", root_post_id=""):
-        retun ("", "")
+        try:
+            if not reply_post_id:
+                response = self.session.create_tweet(text=post)
+            else:
+                response = self.session.create_tweet(text=post, in_reply_to_tweet_id=reply_post_id)
+            return (response.data['id'], "")
+        except HTTPException as e:
+            raise PublishError("Unable to publish post to X", e.api_errors)
+        except TweepyException as e:
+            raise PublishError("Unable to publish post to X", [str(e)])

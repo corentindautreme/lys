@@ -5,4 +5,4 @@ from formatter.bluesky_formatter import BlueskyFormatter
 
 class BlueskyFiveMinutePublisher(Publisher):
     def __init__(self):
-        super().__init__(BlueskyClient(), FiveMinuteGenerator(formatter=BlueskyFormatter(), shorten_urls=True))
+        super().__init__(BlueskyClient(), FiveMinuteGenerator(formatter=BlueskyFormatter(), shorten_urls=True, thread_indicator=True))

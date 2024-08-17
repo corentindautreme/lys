@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import json
 
 try:
     import boto3
@@ -84,8 +85,8 @@ def main(event, context):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Launch Lys for the specified mode and target")
     parser.add_argument("--dry-run", dest="dry_run", help="Dry run (perform all actions, but the social media client is mocked). True by default", default=True)
-    parser.add_argument("-mode", dest="mode", help="Mode (5min, daily, weekly)")
-    parser.add_argument("-target", dest="target", help="Target (twitter, bluesky)")
+    parser.add_argument("--mode", dest="mode", help="Mode (5min, daily, weekly)")
+    parser.add_argument("--target", dest="target", help="Target (twitter, bluesky)")
     args = parser.parse_args()
     event = {
         "mode": args.mode,
@@ -99,4 +100,4 @@ if __name__ == '__main__':
         ]
     print(event)
     output = main(event, None)
-    print(output)
+    print(json.dumps(output, indent=4))

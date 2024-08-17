@@ -1,7 +1,10 @@
-import requests
 import os
+import requests
+
+from requests.exceptions import HTTPError
 
 from client.social_media_client import SocialMediaClient
+from client.publish_error import PublishError
 
 class BlueskyClient(SocialMediaClient):
     def create_session(self):
@@ -22,17 +25,22 @@ class BlueskyClient(SocialMediaClient):
 
 
     def publish_post(post):
-        resp = requests.post(
-            "https://bsky.social/xrpc/com.atproto.repo.createRecord",
-            headers={"Authorization": "Bearer " + self.session["accessJwt"]},
-            json={
-                "repo": self.session["did"],
-                "collection": "app.bsky.feed.post",
-                "record": post
-            }
-        )
-        resp.raise_for_status()
-        return resp.json()
+        try:
+            resp = requests.post(
+                "https://bsky.social/xrpc/com.atproto.repo.createRecord",
+                headers={"Authorization": "Bearer " + self.session["accessJwt"]},
+                json={
+                    "repo": self.session["did"],
+                    "collection": "app.bsky.feed.post",
+                    "record": post
+                }
+            )
+            resp.raise_for_status()
+            return resp.json()
+        except HTTPError as e:
+            status = e.response.status_code
+            message = e.response.text
+            raise PublishError("Unable to publish post to Bluesky - status is " + status, message)
 
 
     def publish(self, post, reply_post_id="", root_post_id=""):

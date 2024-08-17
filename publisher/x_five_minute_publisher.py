@@ -4,4 +4,4 @@ from generator.five_minute_generator import FiveMinuteGenerator
 
 class XFiveMinutePublisher(Publisher):
     def __init__(self):
-        super().__init__(XClient(), FiveMinuteGenerator())
+        super().__init__(XClient(), FiveMinuteGenerator(post_char_limit=245))
