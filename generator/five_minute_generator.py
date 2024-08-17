@@ -57,7 +57,7 @@ class FiveMinuteGenerator(Generator):
         event_string = self.generate_event_string(event, include_comments=False)
         link_count = len(event['watchLinks'])
         # if that's not enough, we remove watch links one by one, starting by the last ones
-        while self.is_post_too_long(event_string):
+        while self.is_post_too_long(event_string) and link_count >= 0:
             link_count -= 1
             event_string = self.generate_event_string(event, include_comments=False, include_link_count=link_count)
         return event_string
