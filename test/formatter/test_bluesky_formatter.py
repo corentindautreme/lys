@@ -71,9 +71,11 @@ class BlueskyFormatterTest(unittest.TestCase):
         self.assertTrue(type(facet['index']) is dict)
         self.assertTrue("byteStart" in facet['index'])
         self.assertTrue("byteEnd" in facet['index'])
-        self.assertTrue(type(facet['features']) is dict)
-        self.assertEqual(facet['features']['$type'], "app.bsky.richtext.facet#link")
-        self.assertEqual(facet['features']['uri'], "https://svtplay.se")
+        self.assertTrue(type(facet['features']) is list)
+        self.assertEqual(len(facet['features'], 1))
+        feature = facet['features'][0]
+        self.assertEqual(feature['$type'], "app.bsky.richtext.facet#link")
+        self.assertEqual(feature['uri'], "https://svtplay.se")
 
         self.assertTrue(type(post['embed']) is dict)
         self.assertEqual(post['embed']['$type'], "app.bsky.embed.external")
