@@ -3,7 +3,6 @@ import re
 import datetime
 import requests
 
-from bs4 import BeautifulSoup
 from unittest.mock import patch, MagicMock
 
 from formatter.bluesky_formatter import BlueskyFormatter

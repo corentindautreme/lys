@@ -3,6 +3,18 @@ import datetime
 DATETIME_CET_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 
+def event_timestamp_string_to_datetime(timestamp_str):
+    return datetime.datetime.strptime(timestamp_str, DATETIME_CET_FORMAT)
+
+
+def extract_time_from_timestamp_string(timestamp_str):
+    return event_timestamp_string_to_datetime(timestamp_str).strftime("%H:%M")
+
+
+def extract_weekday_and_day_from_timestamp_string(timestamp_str):
+    return event_timestamp_string_to_datetime(timestamp_str).strftime("%A %d")
+
+
 def get_timestamp():
     return datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
 

@@ -2,8 +2,8 @@ import re
 import datetime
 
 from generator.generator import Generator
-from utils.time_utils import DATETIME_CET_FORMAT
-from common import flag_emojis, DOWN_ARROW_EMOJI
+from utils.time_utils import extract_time_from_timestamp_string
+from utils.post_utils import flag_emojis, DOWN_ARROW_EMOJI
 
 class DailyGenerator(Generator):
     def __init__(self, formatter=None, shorten_urls=False):
@@ -32,7 +32,7 @@ class DailyGenerator(Generator):
 
 
     def generate_post(self, event, is_morning):
-        time = datetime.datetime.strptime(event['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%H:%M")
+        time = extract_time_from_timestamp_string(event['dateTimeCet'])
         watch_link_string = self.get_live_watch_links_string(event)
         if watch_link_string == "":    
             watch_link_string = "(no watch link found)"

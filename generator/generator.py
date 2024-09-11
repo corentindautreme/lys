@@ -1,7 +1,7 @@
 import re
 
 from abc import ABC, abstractmethod
-from common import CASSETTE_EMOJI, TROPHY_EMOJI, CLOCK_EMOJI, TV_EMOJI
+from utils.post_utils import CASSETTE_EMOJI, TROPHY_EMOJI, CLOCK_EMOJI, TV_EMOJI
 from utils.watch_link_utils import get_short_url
 
 class Generator(ABC):

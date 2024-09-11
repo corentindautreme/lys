@@ -2,7 +2,6 @@ import unittest
 
 from generator.five_minute_generator import FiveMinuteGenerator
 
-# TODO add test with lower post_char_limit=245
 class FiveMinuteGeneratorGeneratorTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
