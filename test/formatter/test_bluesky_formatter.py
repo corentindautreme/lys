@@ -50,7 +50,7 @@ class BlueskyFormatterTest(unittest.TestCase):
         post_string = "TODAY | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Heat 2\n\U0001F553 20:00 CET\n---------\n\U0001F4FA https://svtplay.se."
         
         mock_requests_resp = MagicMock(text="<>")
-        with patch.object("bs4.BeautifulSoup", 'find', side_effect=[{"content": "MOCK_TITLE"}, {"content": "MOCK_DESCR"}]) as mock_bs, patch.object(requests, 'get', return_value=mock_requests_resp) as mock_req:
+        with patch("bs4.BeautifulSoup.find", side_effect=[{"content": "MOCK_TITLE"}, {"content": "MOCK_DESCR"}]) as mock_bs, patch.object(requests, 'get', return_value=mock_requests_resp) as mock_req:
             post = self.formatter.format_post(post_string, events)
 
         self.assertTrue(type(post) is dict)
