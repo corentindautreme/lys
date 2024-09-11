@@ -28,7 +28,7 @@ class BlueskyFormatterTest(unittest.TestCase):
 
     def test_when_formatting_post_with_no_event_should_generate_post_without_facets_nor_link_card(self):
         post_string = "\U0001F5D3 COMING UP NEXT WEEK:\n\n - Saturday 06: \U0001F1F8\U0001F1EA"
-        post = self.formatter.format_post(post_string)
+        post = self.formatter.format_post(post_string, events=[])
         self.assertTrue(type(post) is dict)
         self.assertEqual(post['text'], post_string)
         self.assertEqual(post['$type'], "app.bsky.feed.post")
