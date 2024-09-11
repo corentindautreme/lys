@@ -72,7 +72,7 @@ class BlueskyFormatterTest(unittest.TestCase):
         self.assertTrue("byteStart" in facet['index'])
         self.assertTrue("byteEnd" in facet['index'])
         self.assertTrue(type(facet['features']) is list)
-        self.assertEqual(len(facet['features'], 1))
+        self.assertEqual(len(facet['features']), 1)
         feature = facet['features'][0]
         self.assertEqual(feature['$type'], "app.bsky.richtext.facet#link")
         self.assertEqual(feature['uri'], "https://svtplay.se")
