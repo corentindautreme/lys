@@ -9,7 +9,7 @@ from client.mock_client import MockClient
 class BlueskyDailyPublisherTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        with patch('client.bluesky_client.BlueskyClient', new=MockClient):
+        with patch('publisher.bluesky_daily_publisher.BlueskyClient', new=MockClient):
             self.publisher = BlueskyDailyPublisher()
     
     def test_when_calling_daily_publisher_with_one_event_should_generate_and_publish_single_post_thread(self):
