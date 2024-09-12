@@ -1,5 +1,7 @@
 import unittest
 
+from unittest.mock import patch
+
 from publisher.bluesky_five_minute_publisher import BlueskyFiveMinutePublisher
 from client.mock_client import MockClient
 
