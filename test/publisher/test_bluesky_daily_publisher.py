@@ -1,5 +1,6 @@
 import unittest
 import datetime
+import requests
 
 from unittest.mock import patch, MagicMock
 
