@@ -9,8 +9,8 @@ from client.mock_client import MockClient
 class BlueskyDailyPublisherTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.publisher = BlueskyDailyPublisher()
-        self.publisher.client = MockClient()
+        with patch('client.bluesky_client.BlueskyClient', new=MockClient()):
+            self.publisher = BlueskyDailyPublisher()
     
     def test_when_calling_daily_publisher_with_one_event_should_generate_and_publish_single_post_thread(self):
         events = [{'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLinks': [{'link': 'https://svtplay.se', 'comment': 'Recommended link', 'live': 1}]}]
