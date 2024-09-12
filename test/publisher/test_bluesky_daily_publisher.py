@@ -68,7 +68,7 @@ class BlueskyDailyPublisherTest(unittest.TestCase):
         self.assertEqual(len(summary), 4)
         self.assertEqual(summary[0]['text'], "TONIGHT | 3 selection shows across Europe and Australia! (thread \U00002B07\U0000FE0F)")
         self.assertEqual(summary[1]['text'], "TONIGHT | \U0001F1E6\U0001F1FA AUSTRALIA\n---------\n\U0001F4FC Australia Decides\n\U0001F3C6 Final\n\U0001F553 10:30 CET\n---------\n\U0001F4FA facebook.com.")
-        self.assertEqual(summary[2]['text'], "TONIGHT | \U0001F1F3\U0001F1F4 NORWAY\n---------\n\U0001F4FC Melodi Grand Prix\n\U0001F3C6 Heat 5\n\U0001F553 19:50 CET\n---------\n\U0001F4FA nrk.no/mgp.")
+        self.assertEqual(summary[2]['text'], "TONIGHT | \U0001F1F3\U0001F1F4 NORWAY\n---------\n\U0001F4FC Melodi Grand Prix\n\U0001F3C6 Heat 5\n\U0001F553 19:50 CET\n---------\n\U0001F4FA nrk.no.")
         self.assertEqual(summary[3]['text'], "TONIGHT | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Heat 2\n\U0001F553 20:00 CET\n---------\n\U0001F4FA svtplay.se.")
         
         published_posts = self.publisher.client.posts
@@ -99,7 +99,7 @@ class BlueskyDailyPublisherTest(unittest.TestCase):
         self.assertEqual(post['embed']['external']['title'], "MOCK_TITLE")
         self.assertEqual(post['embed']['external']['description'], "MOCK_DESCRIPTION")
 
-        self.assertEqual(published_posts[2]['text'], "TONIGHT | \U0001F1F3\U0001F1F4 NORWAY\n---------\n\U0001F4FC Melodi Grand Prix\n\U0001F3C6 Heat 5\n\U0001F553 19:50 CET\n---------\n\U0001F4FA nrk.no/mgp.")
+        self.assertEqual(published_posts[2]['text'], "TONIGHT | \U0001F1F3\U0001F1F4 NORWAY\n---------\n\U0001F4FC Melodi Grand Prix\n\U0001F3C6 Heat 5\n\U0001F553 19:50 CET\n---------\n\U0001F4FA nrk.no.")
         post = published_posts[2]
         self.assertTrue(type(post['facets']) is list)
         self.assertEqual(len(post['facets']), 1)
