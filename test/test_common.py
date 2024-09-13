@@ -3,6 +3,9 @@ import unittest
 from common import get_watch_link_string
 
 class CommonTest(unittest.TestCase):
+    # TODO move below to generator/test_generator.py
+    # Add test cases for include_comments = false
+    # Add test cases for generator.get_live_watch_links_string
     def test_when_getting_watch_link_string_for_recommended_link_should_generate_string_without_comment(self):
         watch_link = {'link': 'https://svt.se/melodifestivalen', 'comment': 'Recommended link'}
         s = get_watch_link_string(watch_link, country="Sweden")
