@@ -10,9 +10,7 @@ class GeneratorTest(unittest.TestCase):
         with patch.multiple(Generator, __abstractmethods__=set()):
             self.generator = Generator()
 
-
-    # TODO Add test cases for include_comments = false
-    # Add test cases for generator.get_live_watch_links_string with include_comments=True/False + include_link_count != None down to 0
+    
     def test_when_getting_watch_link_string_for_recommended_link_should_generate_string_without_comment(self):
         watch_link = {'link': 'https://svt.se/melodifestivalen', 'comment': 'Recommended link'}
         s = self.generator.get_single_watch_link_string(watch_link, country="Sweden")
