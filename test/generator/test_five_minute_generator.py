@@ -35,10 +35,8 @@ class FiveMinuteGeneratorGeneratorTest(unittest.TestCase):
     def test_when_watch_links_would_result_in_a_too_long_string_then_should_shorten_the_event_string_and_generate_a_valid_thread_anyway(self):
         events = [
             {
-                "id": 283,
                 "dateTimeCet": "2024-03-09T20:00:00",
                 "country": "Sweden",
-                "endDateTimeCet": "2024-03-09T22:00:00",
                 "name": "Melodifestivalen",
                 "stage": "Final",
                 "watchLinks": [
