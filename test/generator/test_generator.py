@@ -39,7 +39,7 @@ class GeneratorTest(unittest.TestCase):
 
     def test_when_getting_watch_link_string_for_link_without_including_comments_should_generate_string_without_comment(self):
         watch_link = {'link': 'https://svt.se/melodifestivalen', 'comment': 'English commentary'}
-        s = self.generator.get_single_watch_link_string(watch_link, country="Sweden")
+        s = self.generator.get_single_watch_link_string(watch_link, country="Sweden", include_comments=False)
         self.assertEqual(s, "https://svt.se/melodifestivalen")
 
 
@@ -179,7 +179,7 @@ class GeneratorTest(unittest.TestCase):
                     "castable": 1,
                     "channel": "SVT1",
                     "geoblocked": 0,
-                    "link": "https://www.svtplay.se/melodifestivalen",
+                    "link": "https://www.svtplay.se/melodifestivalen/replay",
                     "live": 0,
                     "replayable": 1
                 }
@@ -187,3 +187,156 @@ class GeneratorTest(unittest.TestCase):
         }
         s = self.generator.get_live_watch_links_string(event)
         self.assertEqual(s, "https://www.svtplay.se/video/jw2BJEy/melodifestivalen/final OR https://www.svtplay.se/video/jQ72NXZ/melodifestivalen/melodifestivalen-2024-the-final (English commentary) OR https://www.svtplay.se/melodifestivalen")
+    
+
+    def test_when_getting_watch_links_string_for_all_live_links_in_event_without_comments_should_include_all_links_without_comments(self):
+        event = {
+            "dateTimeCet": "2024-03-09T20:00:00",
+            "country": "Sweden",
+            "name": "Melodifestivalen",
+            "stage": "Final",
+            "watchLinks": [
+                {
+                    "accountRequired": 0,
+                    "castable": 1,
+                    "channel": "SVT1",
+                    "comment": "Recommended link",
+                    "geoblocked": 0,
+                    "link": "https://www.svtplay.se/video/jw2BJEy/melodifestivalen/final",
+                    "live": 1,
+                    "replayable": 1
+                },
+                {
+                    "accountRequired": 0,
+                    "castable": 1,
+                    "channel": "SVT1",
+                    "comment": "English commentary",
+                    "geoblocked": 0,
+                    "link": "https://www.svtplay.se/video/jQ72NXZ/melodifestivalen/melodifestivalen-2024-the-final",
+                    "live": 1,
+                    "replayable": 1
+                },
+                {
+                    "accountRequired": 0,
+                    "castable": 1,
+                    "channel": "SVT1",
+                    "geoblocked": 0,
+                    "link": "https://www.svtplay.se/melodifestivalen",
+                    "live": 1,
+                    "replayable": 0
+                },
+                {
+                    "accountRequired": 0,
+                    "castable": 1,
+                    "channel": "SVT1",
+                    "geoblocked": 0,
+                    "link": "https://www.svtplay.se/melodifestivalen/replay",
+                    "live": 0,
+                    "replayable": 1
+                }
+            ]
+        }
+        s = self.generator.get_live_watch_links_string(event, include_comments=False)
+        self.assertEqual(s, "https://www.svtplay.se/video/jw2BJEy/melodifestivalen/final OR https://www.svtplay.se/video/jQ72NXZ/melodifestivalen/melodifestivalen-2024-the-final OR https://www.svtplay.se/melodifestivalen")
+    
+
+    def test_when_getting_watch_links_string_for_the_2_first_live_links_in_event_without_comments_should_include_2_links_without_comments(self):
+        event = {
+            "dateTimeCet": "2024-03-09T20:00:00",
+            "country": "Sweden",
+            "name": "Melodifestivalen",
+            "stage": "Final",
+            "watchLinks": [
+                {
+                    "accountRequired": 0,
+                    "castable": 1,
+                    "channel": "SVT1",
+                    "comment": "Recommended link",
+                    "geoblocked": 0,
+                    "link": "https://www.svtplay.se/video/jw2BJEy/melodifestivalen/final",
+                    "live": 1,
+                    "replayable": 1
+                },
+                {
+                    "accountRequired": 0,
+                    "castable": 1,
+                    "channel": "SVT1",
+                    "comment": "English commentary",
+                    "geoblocked": 0,
+                    "link": "https://www.svtplay.se/video/jQ72NXZ/melodifestivalen/melodifestivalen-2024-the-final",
+                    "live": 1,
+                    "replayable": 1
+                },
+                {
+                    "accountRequired": 0,
+                    "castable": 1,
+                    "channel": "SVT1",
+                    "geoblocked": 0,
+                    "link": "https://www.svtplay.se/melodifestivalen",
+                    "live": 1,
+                    "replayable": 0
+                },
+                {
+                    "accountRequired": 0,
+                    "castable": 1,
+                    "channel": "SVT1",
+                    "geoblocked": 0,
+                    "link": "https://www.svtplay.se/melodifestivalen/replay",
+                    "live": 0,
+                    "replayable": 1
+                }
+            ]
+        }
+        s = self.generator.get_live_watch_links_string(event, include_comments=False, include_link_count=2)
+        self.assertEqual(s, "https://www.svtplay.se/video/jw2BJEy/melodifestivalen/final OR https://www.svtplay.se/video/jQ72NXZ/melodifestivalen/melodifestivalen-2024-the-final")
+    
+
+    def test_when_getting_watch_links_string_for_0_live_link_in_event_should_not_include_any_link(self):
+        event = {
+            "dateTimeCet": "2024-03-09T20:00:00",
+            "country": "Sweden",
+            "name": "Melodifestivalen",
+            "stage": "Final",
+            "watchLinks": [
+                {
+                    "accountRequired": 0,
+                    "castable": 1,
+                    "channel": "SVT1",
+                    "comment": "Recommended link",
+                    "geoblocked": 0,
+                    "link": "https://www.svtplay.se/video/jw2BJEy/melodifestivalen/final",
+                    "live": 1,
+                    "replayable": 1
+                },
+                {
+                    "accountRequired": 0,
+                    "castable": 1,
+                    "channel": "SVT1",
+                    "comment": "English commentary",
+                    "geoblocked": 0,
+                    "link": "https://www.svtplay.se/video/jQ72NXZ/melodifestivalen/melodifestivalen-2024-the-final",
+                    "live": 1,
+                    "replayable": 1
+                },
+                {
+                    "accountRequired": 0,
+                    "castable": 1,
+                    "channel": "SVT1",
+                    "geoblocked": 0,
+                    "link": "https://www.svtplay.se/melodifestivalen",
+                    "live": 1,
+                    "replayable": 0
+                },
+                {
+                    "accountRequired": 0,
+                    "castable": 1,
+                    "channel": "SVT1",
+                    "geoblocked": 0,
+                    "link": "https://www.svtplay.se/melodifestivalen/replay",
+                    "live": 0,
+                    "replayable": 1
+                }
+            ]
+        }
+        s = self.generator.get_live_watch_links_string(event, include_link_count=0)
+        self.assertEqual(s, "")
