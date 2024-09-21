@@ -24,7 +24,7 @@ class BlueskyClient(SocialMediaClient):
         self.session = self.create_session()
 
 
-    def publish_post(post):
+    def publish_post(self, post):
         try:
             resp = requests.post(
                 "https://bsky.social/xrpc/com.atproto.repo.createRecord",
@@ -51,7 +51,7 @@ class BlueskyClient(SocialMediaClient):
             }
 
         # save the "id" (a json in this case) of the published post for the next post to be a reply to it 
-        new_reply_post_id = publish_post(post)
+        new_reply_post_id = self.publish_post(post)
         # if we have no root, this is the first post => this post becomes the root
         new_root_post_id = new_reply_post_id if root_post_id == "" else root_post_id
         

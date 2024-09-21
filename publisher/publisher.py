@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from utils.time_utils import is_morning
+from client.publish_error import PublishError
 
 class Publisher(ABC):
     def __init__(self, client, generator):
