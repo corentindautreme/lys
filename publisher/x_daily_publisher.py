@@ -5,3 +5,7 @@ from generator.daily_generator import DailyGenerator
 class XDailyPublisher(Publisher):
     def __init__(self):
         super().__init__(XClient(), DailyGenerator())
+
+
+    def get_log_header(self):
+        return "daily|twitter"

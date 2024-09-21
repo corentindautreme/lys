@@ -6,3 +6,7 @@ from formatter.bluesky_formatter import BlueskyFormatter
 class BlueskyFiveMinutePublisher(Publisher):
     def __init__(self):
         super().__init__(BlueskyClient(), FiveMinuteGenerator(formatter=BlueskyFormatter(), shorten_urls=True, thread_indicator=True))
+
+
+    def get_log_header(self):
+        return "5min|bluesky"

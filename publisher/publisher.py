@@ -9,8 +9,14 @@ class Publisher(ABC):
         self.generator = generator
 
 
+    @abstractmethod
+    def get_log_header(self):
+        pass
+
+
     def publish_thread(self, thread):
         summary = []
+        summary.append(self.get_log_header())
         reply_post_id = root_post_id = ""
 
         for post in thread:

@@ -6,3 +6,7 @@ from formatter.bluesky_formatter import BlueskyFormatter
 class BlueskyWeeklyPublisher(Publisher):
     def __init__(self):
         super().__init__(BlueskyClient(), WeeklyGenerator(formatter=BlueskyFormatter()))
+
+
+    def get_log_header(self):
+        return "weekly|bluesky"

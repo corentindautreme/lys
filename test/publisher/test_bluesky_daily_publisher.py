@@ -22,6 +22,9 @@ class BlueskyDailyPublisherTest(unittest.TestCase):
         """)
         with patch.object(requests, 'get', return_value=mock_requests_resp) as mock_req:
             summary = self.publisher.publish(events, run_date=datetime.datetime(1970, 1, 1, 9, 0, 0, 0))
+
+        self.assertEqual(summary[0], "daily|bluesky")
+        summary = summary[1:]
         
         expected_post = "TODAY | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Final\n\U0001F553 20:00 CET\n---------\n\U0001F4FA svtplay.se."
         self.assertEqual(len(summary), 1)
@@ -64,6 +67,9 @@ class BlueskyDailyPublisherTest(unittest.TestCase):
         """)
         with patch.object(requests, 'get', return_value=mock_requests_resp) as mock_req:
             summary = self.publisher.publish(events, run_date=datetime.datetime(1970, 1, 1, 16, 0, 0, 0))
+
+        self.assertEqual(summary[0], "daily|bluesky")
+        summary = summary[1:]
 
         self.assertEqual(len(summary), 4)
         self.assertEqual(summary[0]['text'], "TONIGHT | 3 selection shows across Europe and Australia! (thread \U00002B07\U0000FE0F)")
