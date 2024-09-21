@@ -12,7 +12,8 @@ except ImportError:
 
 from urllib3.exceptions import InsecureRequestWarning
 
-from common import get_current_season_range_for_date, DATETIME_CET_FORMAT, multikeysort, DecimalEncoder
+from utils.extraction_utils import get_current_season_range_for_date, multikeysort, DecimalEncoder
+from utils.time_utils import DATETIME_CET_FORMAT
 
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
