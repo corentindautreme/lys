@@ -1,4 +1,3 @@
-import re
 import datetime
 
 from generator.generator import Generator
@@ -55,5 +54,7 @@ class WeeklyGenerator(Generator):
                 else:
                     flags += flag_emojis[country] + ('*' if final else '')
             post += "\n - {}: {}".format(weekday, flags)
-
+        
+        if self.formatter is not None:
+            post = self.formatter.format_post(post)
         return post

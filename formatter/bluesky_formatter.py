@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 from formatter.formatter import Formatter
 from utils.watch_link_utils import get_first_watch_link, get_short_url
-from utils.time_utils import get_timestamp
+from utils.time_utils import get_iso_timestamp
 
 class BlueskyFormatter(Formatter):
     def __init__(self, include_link_card=False):
@@ -112,7 +112,7 @@ class BlueskyFormatter(Formatter):
         }
 
 
-    def format_post(self, post_string, events):
+    def format_post(self, post_string, events=None):
         if events is None or len(events) <= 1:
             event = None if events is None or len(events) == 0 else events[0]
             return self.format_single_event_post(post_string, event)
@@ -143,7 +143,7 @@ class BlueskyFormatter(Formatter):
         post = {
             "$type": "app.bsky.feed.post",
             "text": post_string,
-            "createdAt": get_timestamp(),
+            "createdAt": get_iso_timestamp(),
             "langs": ["en-US"]
         }
 

@@ -3,7 +3,7 @@ import datetime
 DATETIME_CET_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 
-def get_timestamp():
+def get_iso_timestamp():
     return datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
 
 
