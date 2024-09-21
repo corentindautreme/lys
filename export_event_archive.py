@@ -18,8 +18,8 @@ if __name__ == '__main__':
 
   countries = {c['country']:c for c in countries_table.scan()['Items']}
 
-  date_from = datetime.datetime(2022, 9, 1, 0, 0, 0).strftime(DATETIME_CET_FORMAT)
-  date_to = datetime.datetime(2023, 3, 31, 23, 59, 59).strftime(DATETIME_CET_FORMAT)
+  date_from = datetime.datetime(2023, 9, 1, 0, 0, 0).strftime(DATETIME_CET_FORMAT)
+  date_to = datetime.datetime(2024, 3, 31, 23, 59, 59).strftime(DATETIME_CET_FORMAT)
 
   events = events_table.scan(
           FilterExpression=Key('dateTimeCet').between(date_from, date_to)
