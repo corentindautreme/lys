@@ -1,7 +1,7 @@
 import re
 
 from abc import ABC, abstractmethod
-from common import CASSETTE_EMOJI, TROPHY_EMOJI, CLOCK_EMOJI, TV_EMOJI
+from utils.post_utils import CASSETTE_EMOJI, TROPHY_EMOJI, CLOCK_EMOJI, TV_EMOJI
 from utils.watch_link_utils import get_short_url
 
 class Generator(ABC):
@@ -77,7 +77,10 @@ class Generator(ABC):
 
     def generate_thread(self, events, is_morning=False):
         if self.is_single_post(events):
-            return [self.generate_single_post(events, is_morning)]
+            post = self.generate_single_post(events, is_morning)
+            if self.formatter is not None:
+                post = self.formatter.format_post(post, events)
+            return [post]
 
         events = sorted(events, key=lambda e: (e['dateTimeCet'], e['country']))
 

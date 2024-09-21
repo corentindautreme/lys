@@ -35,10 +35,8 @@ class FiveMinuteGeneratorTest(unittest.TestCase):
     def test_when_watch_links_would_result_in_a_too_long_string_then_should_shorten_the_event_string_and_generate_a_valid_thread_anyway(self):
         events = [
             {
-                "id": 283,
                 "dateTimeCet": "2024-03-09T20:00:00",
                 "country": "Sweden",
-                "endDateTimeCet": "2024-03-09T22:00:00",
                 "name": "Melodifestivalen",
                 "stage": "Final",
                 "watchLinks": [
@@ -72,7 +70,8 @@ class FiveMinuteGeneratorTest(unittest.TestCase):
                         "replayable": 1
                     }
                 ]
-            }
+            },
+            {'country': 'Norway', 'name': 'Melodi Grand Prix', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLinks': [{'link': 'https://somereallyreallyreallyreallylongurl.no', 'comment': 'Recommended link', 'live': 1}]},
         ]
         self.generator.post_char_limit = 245
         event_string = self.generator.generate_event_string(events[0])
@@ -82,8 +81,9 @@ class FiveMinuteGeneratorTest(unittest.TestCase):
         self.assertEqual(shorter_event_string, "\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (https://www.svtplay.se/video/jw2BJEy/melodifestivalen/final OR https://www.svtplay.se/video/jQ72NXZ/melodifestivalen/melodifestivalen-2024-the-final)")
         
         posts = self.generator.generate_thread(events)
-        self.assertEqual(len(posts), 1)
+        self.assertEqual(len(posts), 2)
         self.assertEqual(posts[0], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (https://www.svtplay.se/video/jw2BJEy/melodifestivalen/final OR https://www.svtplay.se/video/jQ72NXZ/melodifestivalen/melodifestivalen-2024-the-final)")
+        self.assertEqual(posts[1], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F3\U0001F1F4 Melodi Grand Prix - Final (https://somereallyreallyreallyreallylongurl.no)")
         self.generator.post_char_limit = 260
 
 

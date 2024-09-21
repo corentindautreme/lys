@@ -1,7 +1,8 @@
 import datetime
 
 from generator.generator import Generator
-from common import DATETIME_CET_FORMAT, flag_emojis
+from utils.time_utils import extract_weekday_and_day_from_timestamp_string
+from utils.post_utils import flag_emojis
 
 class WeeklyGenerator(Generator):
     def __init__(self, formatter=None):
@@ -26,7 +27,7 @@ class WeeklyGenerator(Generator):
 
     def generate_single_post(self, events, is_morning):
         # list of (weekday, country) tuples
-        simplified_events = list(map(lambda e: (datetime.datetime.strptime(e['dateTimeCet'], DATETIME_CET_FORMAT).strftime("%A %d"), e['country'] + ('*' if "Final" in e['stage'] else '')), events))
+        simplified_events = list(map(lambda e: (extract_weekday_and_day_from_timestamp_string(e['dateTimeCet']), e['country'] + ('*' if "Final" in e['stage'] else '')), events))
         # indicates if any event is a final
         includes_final = False
 

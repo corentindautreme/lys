@@ -2,7 +2,7 @@ import re
 import datetime
 
 from generator.generator import Generator
-from common import DATETIME_CET_FORMAT, flag_emojis, ALERT_EMOJI, DOWN_ARROW_EMOJI
+from utils.post_utils import flag_emojis, ALERT_EMOJI, DOWN_ARROW_EMOJI
 
 class FiveMinuteGenerator(Generator):
     POST_HEADER = ALERT_EMOJI + " 5 MINUTES REMINDER!"

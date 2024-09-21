@@ -17,6 +17,9 @@ class BlueskyFormatter(Formatter):
         for ld in link_descriptions:
             previous_appearance = (last_appearance_of.get(ld['text']) + 1) if ld['text'] in last_appearance_of else 0
             start = post_string.find(ld['text'], previous_appearance)
+            # if the link can't be found, skip to the next link
+            if start == -1:
+                continue
             # keep track of the last appearance of a link text to handle posts where a short link appears multiple times
             last_appearance_of[ld['text']] = start
             # we have to "count in utf-8" to make sure emojis are counted for the right amount of characters
@@ -32,6 +35,9 @@ class BlueskyFormatter(Formatter):
 
     # stolen from https://atproto.com/blog/create-post
     def get_facets(self, link_spans, mention_spans=[]):
+        if len(link_spans) == 0 and len(mention_spans) == 0:
+            return []
+        
         facets = []
         for m in mention_spans:
             resp = requests.get(
@@ -127,7 +133,9 @@ class BlueskyFormatter(Formatter):
             "createdAt": get_timestamp(),
             "langs": ["en-US"]
         }
-        post["facets"] = self.get_facets_for_event_links_in_string(events, post_string)
+        facets = self.get_facets_for_event_links_in_string(events, post_string)
+        if len(facets) > 0:
+            post["facets"] = facets
         
         # include a social card to the post only if we have at least one (live) recommended link to provide
         # and, of course, if we want to include a card
