@@ -22,7 +22,7 @@ from publisher.threads_daily_publisher import ThreadsDailyPublisher
 from publisher.threads_five_minute_publisher import ThreadsFiveMinutePublisher
 from publisher.threads_weekly_publisher import ThreadsWeeklyPublisher
 
-from utils.time_utils import DATETIME_CET_FORMAT
+from utils.time_utils import DATETIME_CET_FORMAT, resolve_range_from_run_date_and_mode
 
 
 def resolve_publisher(mode, target, dry_run=True):
@@ -69,8 +69,9 @@ def main(event, context):
     
     today = run_date
 
-    today_morning = today.strftime(DATETIME_CET_FORMAT)
-    today_evening = today.replace(hour=23, minute=59, second=59).strftime(DATETIME_CET_FORMAT)
+    event_date_range = resolve_range_from_run_date_and_mode(run_date, mode)
+    events_start_date = event_date_range[0].strftime(DATETIME_CET_FORMAT)
+    events_end_date = event_date_range[1].strftime(DATETIME_CET_FORMAT)
 
     if dry_run and "events" in event:
         events = event['events']
@@ -79,7 +80,7 @@ def main(event, context):
         table = dynamodb.Table('lys_events')
 
         events = table.scan(
-            FilterExpression=Key('dateTimeCet').between(today_morning, today_evening)
+            FilterExpression=Key('dateTimeCet').between(events_start_date, events_end_date)
         )['Items']
 
     if len(events) == 0:
