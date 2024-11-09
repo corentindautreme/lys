@@ -3,6 +3,7 @@ try:
 except ImportError:
     pass
 
+from collections import ChainMap
 
 class SettingsUtils:
     def get_db_client(self):
