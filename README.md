@@ -2,7 +2,7 @@
 
 [![Deploy lambdas](https://github.com/corentindautreme/lys/actions/workflows/publish_lambda.yml/badge.svg)](https://github.com/corentindautreme/lys/actions/workflows/publish_lambda.yml)
 
-Lys is a bot for [Bluesky](https://bsky.app/profile/eurovisionlys.bsky.social), [Twitter](https://x.com/EurovisionLys), and soon [Threads](https://www.threads.net/@eurovisionlys) aiming at publishing daily reminders for every Eurovision national selection show happening in Europe (and Australia).
+Lys is a bot for [Bluesky](https://bsky.app/profile/eurovisionlys.bsky.social), [Twitter](https://x.com/EurovisionLys), and [Threads](https://www.threads.net/@eurovisionlys) aiming at publishing daily reminders for every Eurovision national selection show happening in Europe (and Australia).
 
 ## What does it do exactly?
 
@@ -33,7 +33,7 @@ And finally, a reminder for every show 5 minutes before they start:
 
 ## How does it run?
 
-* The main entrypoint, `lys.py`, is launched as an AWS Lambda, with different arguments depending on the target mode (daily thread, weekly post, 5-minute reminders) and platform (Bluesky or Twitter)
+* The main entrypoint, `lys.py`, is launched as an AWS Lambda, with different arguments depending on the target mode (daily thread, weekly post, 5-minute reminders) and platform (Bluesky, Twitter, or Threads)
 * Events are stored in a AWS DynamoDB table
 
 ## Dependencies
