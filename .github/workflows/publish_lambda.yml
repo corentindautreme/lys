@@ -19,19 +19,25 @@ jobs:
         python -m pip install --upgrade pip
         mkdir lib
         pip install -r requirements.txt --target=lib/
+        mkdir lib-refresh
+        pip install -r requirements-refresh.txt --target=lib_refresh/
     - name: Test
       run: |
         pip install pytest
         export PYTHONPATH=$PYTHONPATH:$(pwd)/lib
         pytest test/
-    - name: Package (Lys & dump script)
+    - name: Package (Lys + dump and refresh scripts)
       if: success()
       run: |
         zip -ur lys.zip client/ formatter/ generator/ publisher/ utils/ lys.py
         zip -ur lys_dump.zip utils/extraction_utils.py utils/time_utils.py lys_dump.py
+        zip -ur lys_refresh.zip lys_refresh.py
         cd lib
         zip -ur ../lys.zip *
         zip -ur ../lys_dump.zip *
+        cd ..
+        cd lib_refresh
+        zip -ur ../lys_refresh.zip *
         cd ..
     - name: Deploy Lys
       if: success()
@@ -48,6 +54,15 @@ jobs:
       with:
         package: lys_dump.zip
         function-name: LysDump
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_SECRET_ID: ${{ secrets.AWS_SECRET_ID }}
+        AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+    - name: Deploy Lys refresh
+      if: success()
+      uses: stcalica/update-lambda@0.0.2
+      with:
+        package: lys_refresh.zip
+        function-name: LysRefresh
         AWS_REGION: ${{ secrets.AWS_REGION }}
         AWS_SECRET_ID: ${{ secrets.AWS_SECRET_ID }}
         AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
