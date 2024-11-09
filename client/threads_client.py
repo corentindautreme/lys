@@ -19,7 +19,7 @@ class ThreadsClient(SocialMediaClient):
         if 'THREADS_ACCESS_TOKEN' in os.environ:
             self.token = os.environ['THREADS_ACCESS_TOKEN']
         else:
-            self.token = self.settings_utils.get_settings(["THREADS_ACCESS_TOKEN"])['THREADS_ACCESS_TOKEN']
+            self.token = self.settings_utils.get_settings(["threads_access_token"])['threads_access_token']
 
 
     def publish(self, post, reply_post_id="", root_post_id=""):
