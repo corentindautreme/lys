@@ -23,6 +23,7 @@ def get_all_settings(dynamodb_client, keys):
     settings = dict(ChainMap(*list(map(lambda setting: {setting['key']['S']: setting['lys_value']['S']}, settings_items['Responses']['lys_settings']))))
     return settings
 
+
 # update the passed key/lys_value pair in the lys_settings table
 def write_setting(dynamodb_client, key, value):
     dynamodb_client.update_item(
