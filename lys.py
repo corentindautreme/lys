@@ -18,6 +18,10 @@ from publisher.x_daily_publisher import XDailyPublisher
 from publisher.x_five_minute_publisher import XFiveMinutePublisher
 from publisher.x_weekly_publisher import XWeeklyPublisher
 
+from publisher.threads_daily_publisher import ThreadsDailyPublisher
+from publisher.threads_five_minute_publisher import ThreadsFiveMinutePublisher
+from publisher.threads_weekly_publisher import ThreadsWeeklyPublisher
+
 from utils.time_utils import DATETIME_CET_FORMAT
 
 
@@ -25,15 +29,18 @@ def resolve_publisher(mode, target, dry_run=True):
     p = {
         "5min": {
             "twitter": XFiveMinutePublisher(),
-            "bluesky": BlueskyFiveMinutePublisher()
+            "bluesky": BlueskyFiveMinutePublisher(),
+            "threads": ThreadsFiveMinutePublisher()
         },
         "daily": {
             "twitter": XDailyPublisher(),
-            "bluesky": BlueskyDailyPublisher()
+            "bluesky": BlueskyDailyPublisher(),
+            "threads": ThreadsDailyPublisher()
         },
         "weekly": {
             "twitter": XWeeklyPublisher(),
-            "bluesky": BlueskyWeeklyPublisher()
+            "bluesky": BlueskyWeeklyPublisher(),
+            "threads": ThreadsWeeklyPublisher()
         }
     }
     try:
@@ -86,7 +93,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser("Launch Lys for the specified mode and target")
     parser.add_argument("--dry-run", dest="dry_run", help="Dry run (perform all actions, but the social media client is mocked). True by default", default=True)
     parser.add_argument("--mode", dest="mode", help="Mode (5min, daily, weekly)")
-    parser.add_argument("--target", dest="target", help="Target (twitter, bluesky)")
+    parser.add_argument("--target", dest="target", help="Target (twitter, bluesky, threads)")
     args = parser.parse_args()
     event = {
         "mode": args.mode,
