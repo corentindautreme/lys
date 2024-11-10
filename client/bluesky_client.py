@@ -40,7 +40,7 @@ class BlueskyClient(SocialMediaClient):
         except HTTPError as e:
             status = e.response.status_code
             message = e.response.text
-            raise PublishError("Unable to publish post to Bluesky - status is " + status, message)
+            raise PublishError("Unable to publish post to Bluesky - status is " + str(status), message)
 
 
     def publish(self, post, reply_post_id="", root_post_id=""):

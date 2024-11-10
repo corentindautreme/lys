@@ -142,7 +142,12 @@ class BlueskyFormatter(Formatter):
         if self.include_link_card:
             first_link = get_first_watch_link(events[0])
             if first_link is not None:
-                post["embed"] = self.generate_url_card(first_link)
+                try:
+                    post["embed"] = self.generate_url_card(first_link)
+                except HTTPError as e:
+                    status = e.response.status_code
+                    message = e.response.text
+                    print("Unable to create Bluesky link card for URL=" + first_link + ", status is " + str(status) + ": " + message)
 
         return post
 

@@ -73,7 +73,7 @@ def main(event=None, context=None):
         except HTTPError as e:
             status = e.response.status_code
             message = e.response.text
-            output.append("ERROR - Unable to refresh Threads token, status is " + status, message)
+            output.append("ERROR - Unable to refresh Threads token, status is " + str(status) + ": " + message)
     else:
         output.append("DRY RUN - did not refresh or update 'threads_access_token'")
 

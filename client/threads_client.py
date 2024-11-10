@@ -41,7 +41,7 @@ class ThreadsClient(SocialMediaClient):
         except HTTPError as e:
             status = e.response.status_code
             message = e.response.text
-            raise PublishError("Unable to create post on Thread - status is " + status, message)
+            raise PublishError("Unable to create post on Thread - status is " + str(status), message)
 
         creation_id = create_response.json()['id']
         publish_post_url = "https://graph.threads.net/v1.0/{user_id}/threads_publish?creation_id={creation_id}&access_token={token}".format(user_id=self.user_id, creation_id=creation_id, token=self.token)
@@ -52,7 +52,7 @@ class ThreadsClient(SocialMediaClient):
         except HTTPError as e:
             status = e.response.status_code
             message = e.response.text
-            raise PublishError("Unable to publish created post to Thread - status is " + status, message)
+            raise PublishError("Unable to publish created post to Thread - status is " + str(status), message)
 
         # save the "id" (a json in this case) of the published post for the next post to be a reply to it 
         new_reply_post_id = publish_response.json()['id']
