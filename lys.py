@@ -103,6 +103,9 @@ def main(event, context):
     if len(events) > 0:
         output += publisher.publish(events, run_date)
 
+    for l in output:
+        print(l)
+        
     return output
 
 
