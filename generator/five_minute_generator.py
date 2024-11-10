@@ -65,9 +65,10 @@ class FiveMinuteGenerator(Generator):
 
     def generate_thread(self, events, is_morning=False):
         thread = []
-        is_thread=False
+        is_thread = False
         tmp_post = ""
         post_events = []
+
         for idx, event in enumerate(events):
             event_string = self.generate_event_string(event)
             # if the string for a single event is already too long to be posted on its own, we
@@ -101,6 +102,7 @@ class FiveMinuteGenerator(Generator):
                 # we reset the tmp post, and initialize it with the next event (the one we couldn't add to the previous post)
                 tmp_post = self.SEPARATOR + event_string
                 post_events = [event]
+        
         # if we processed all events but still have event strings that we haven't saved to a post, we do it now
         if len(tmp_post) > 0:
             post = self.POST_HEADER

@@ -26,7 +26,7 @@ class XClient(SocialMediaClient):
             return api
 
 
-    def __init__(self):
+    def init(self):
         self.x_api_version = int(os.environ['TWITTER_API_VERSION'])
         self.session = self.create_session()
 

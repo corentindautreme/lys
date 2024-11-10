@@ -2,6 +2,11 @@ from abc import ABC, abstractmethod
 
 class SocialMediaClient(ABC):
 	@abstractmethod
+	def init(self):
+		pass
+
+
+	@abstractmethod
 	def create_session(self):
 		pass
 

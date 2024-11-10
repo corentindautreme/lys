@@ -16,9 +16,6 @@ class XDailyPublisherTest(unittest.TestCase):
         events = [{'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLinks': [{'link': 'https://svtplay.se', 'comment': 'Recommended link', 'live': 1}]}]
         
         summary = self.publisher.publish(events, run_date=datetime.datetime(1970, 1, 1, 9, 0, 0, 0))
-
-        self.assertEqual(summary[0], "daily|twitter")
-        summary = summary[1:]
         
         expected_post = "TODAY | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Final\n\U0001F553 20:00 CET\n---------\n\U0001F4FA https://svtplay.se."
         self.assertEqual(len(summary), 1)
@@ -38,9 +35,6 @@ class XDailyPublisherTest(unittest.TestCase):
         ]
 
         summary = self.publisher.publish(events, run_date=datetime.datetime(1970, 1, 1, 16, 0, 0, 0))
-
-        self.assertEqual(summary[0], "daily|twitter")
-        summary = summary[1:]
 
         self.assertEqual(len(summary), 4)
         self.assertEqual(summary[0], "TONIGHT | 3 selection shows across Europe and Australia! (thread \U00002B07\U0000FE0F)")

@@ -17,9 +17,6 @@ class BlueskyFiveMinutePublisherTest(unittest.TestCase):
         events = [{'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLinks': [{'link': 'https://svtplay.se', 'comment': 'Recommended link', 'live': 1}]}]
         summary = self.publisher.publish(events, run_date=datetime.datetime(1970, 1, 1, 9, 0, 0, 0))
 
-        self.assertEqual(summary[0], "5min|bluesky")
-        summary = summary[1:]
-
         expected_post = "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (svtplay.se)"
 
         self.assertEqual(len(summary), 1)
@@ -54,10 +51,7 @@ class BlueskyFiveMinutePublisherTest(unittest.TestCase):
             {'country': 'Serbia', 'name': 'Beovizija', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLinks': [{'link': 'https://somereallyreallyreallyreallylongurl.rs', 'comment': 'Recommended link', 'live': 1}]}
         ]
         summary = self.publisher.publish(events, run_date=datetime.datetime(1970, 1, 1, 19, 55, 0, 0))
-
-        self.assertEqual(summary[0], "5min|bluesky")
-        summary = summary[1:]
-
+        
         self.assertEqual(len(summary), 2)
         self.assertEqual(summary[0]['text'], "\U0001F6A8 5 MINUTES REMINDER! (thread \U00002B07\U0000FE0F)\n---------\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (svtplay.se)\n---------\n\U0001F1F3\U0001F1F4 Melodi Grand Prix - Final (somereallyreallyreallyreallylongurl.no)\n---------\n\U0001F1EA\U0001F1EA Eesti Laul - Final (somereallyreallyreallyreallylongurl.ee)")
         self.assertEqual(summary[1]['text'], "\U0001F6A8 5 MINUTES REMINDER! (cont.)\n---------\n\U0001F1EB\U0001F1EE Uuden Musiikin Kilpailu - Final (somereallyreallyreallyreallylongurl.fi)\n---------\n\U0001F1F7\U0001F1F8 Beovizija - Final (somereallyreallyreallyreallylongurl.rs)")

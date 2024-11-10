@@ -22,6 +22,16 @@ jobs:
         mkdir lib-refresh
         pip install -r requirements-refresh.txt --target=lib_refresh/
     - name: Test
+      env:
+        TWITTER_CONSUMER_KEY: 'dummy'
+        TWITTER_CONSUMER_SECRET: 'dummy'
+        TWITTER_ACCESS_TOKEN: 'dummy'
+        TWITTER_ACCESS_SECRET: 'dummy'
+        TWITTER_API_VERSION: '2'
+        THREADS_ACCESS_TOKEN: 'dummy'
+        BLUESKY_ACCOUNT_HANDLE: 'dummy'
+        BLUESKY_ACCOUNT_APP_PASSWORD: 'dummy'
+        THREADS_USER_ID: 'dummy'
       run: |
         pip install pytest
         export PYTHONPATH=$PYTHONPATH:$(pwd)/lib
