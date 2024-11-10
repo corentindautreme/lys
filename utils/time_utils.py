@@ -38,7 +38,10 @@ def resolve_range_from_run_date_and_mode(run_date, mode):
         return (today_morning, today_evening)
     elif mode == "5min":
         now = (run_date + datetime.timedelta(seconds=1))
-        now_plus5min = (run_date + datetime.timedelta(minutes=5)).replace(second=0)
+        # no broadcaster schedules (at least, they don't do it seriously) a show at minutes that don't end in 0 or 5 (e.g. 20:34, 21:12, etc.)
+        # that way, we can safely look for events starting in 9 minutes from now or less
+        # this allows us to schedule some executions of the "5min" lambda a bit earlier, to work around AWS' annoying concurrency rules on Lambdas
+        now_plus5min = (run_date + datetime.timedelta(minutes=9)).replace(second=0)
         return (now, now_plus5min)
     elif mode == "weekly":
         tomorrow_morning = (run_date + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0)
