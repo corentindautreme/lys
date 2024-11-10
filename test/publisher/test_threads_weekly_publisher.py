@@ -24,9 +24,8 @@ class ThreadsWeeklyPublisherTest(unittest.TestCase):
         
         expected_post = "\U0001F5D3 COMING UP NEXT WEEK (* = final):\n\n - Tuesday 02: \U0001F1EA\U0001F1EA\n - Saturday 06: \U0001F1F3\U0001F1F4*\U0001F1F8\U0001F1EA"
         
-        self.assertEqual(len(summary), 2)
-        self.assertEqual(summary[0], "weekly|threads")
-        self.assertEqual(summary[1], expected_post)
+        self.assertEqual(len(summary), 1)
+        self.assertEqual(summary[0], expected_post)
 
         published_posts = self.publisher.client.posts
         self.assertEqual(len(published_posts), 1)

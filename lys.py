@@ -47,6 +47,10 @@ def resolve_publisher(mode, target, dry_run=True):
         publisher = p[mode][target]
         if dry_run:
             publisher.client = MockClient()
+
+        # init the publisher and its components before using it - this allows to initialize API clients, fetch config... only when needed
+        publisher.init()
+        
         return publisher
     except KeyError as e:
         raise RuntimeError("Cannot resolve publisher for mode={} and target={}".format(mode, target))
@@ -69,7 +73,12 @@ def main(event, context):
     
     today = run_date
 
-    event_date_range = resolve_range_from_run_date_and_mode(run_date, mode)
+    try:
+        event_date_range = resolve_range_from_run_date_and_mode(run_date, mode)
+    except RuntimeError as e:
+        output = ["Error: Unable to resolve date range for run with mode={} and target={} - error is: {}".format(mode, target, str(e))]
+        return output
+
     events_start_date = event_date_range[0].strftime(DATETIME_CET_FORMAT)
     events_end_date = event_date_range[1].strftime(DATETIME_CET_FORMAT)
 
@@ -83,11 +92,18 @@ def main(event, context):
             FilterExpression=Key('dateTimeCet').between(events_start_date, events_end_date)
         )['Items']
 
-    if len(events) == 0:
-        return
+    try:
+        publisher = resolve_publisher(mode, target, dry_run)
+    except RuntimeError as e:
+        output = ["Error: Unable to resolve a publisher - error is: " + str(e)]
+        return output
 
-    publisher = resolve_publisher(mode, target, dry_run)
-    return publisher.publish(events, run_date)
+    output = [publisher.get_log_header()]
+
+    if len(events) > 0:
+        output += publisher.publish(events, run_date)
+
+    return output
 
 
 if __name__ == '__main__':

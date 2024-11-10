@@ -15,6 +15,10 @@ class ThreadsClient(SocialMediaClient):
         self.token = None
 
 
+    def init(self):
+        return
+
+
     def create_session(self):
         if 'THREADS_ACCESS_TOKEN' in os.environ:
             self.token = os.environ['THREADS_ACCESS_TOKEN']

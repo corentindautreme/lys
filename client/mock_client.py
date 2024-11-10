@@ -6,6 +6,10 @@ class MockClient(SocialMediaClient):
         self.posts = []
 
 
+    def init(self):
+        return
+
+
     def create_session(self):
         return
 

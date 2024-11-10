@@ -20,7 +20,7 @@ class BlueskyClient(SocialMediaClient):
         return response.json()
 
     
-    def __init__(self):
+    def init(self):
         self.session = self.create_session()
 
 

@@ -7,6 +7,12 @@ class Publisher(ABC):
     def __init__(self, client, generator):
         self.client = client
         self.generator = generator
+        self.initialized = False
+
+
+    def init(self):
+        self.client.init()
+        self.initialized = True
 
 
     @abstractmethod
@@ -16,7 +22,6 @@ class Publisher(ABC):
 
     def publish_thread(self, thread):
         summary = []
-        summary.append(self.get_log_header())
         reply_post_id = root_post_id = ""
 
         for post in thread:
