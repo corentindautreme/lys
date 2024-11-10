@@ -29,6 +29,7 @@ jobs:
         THREADS_ACCESS_TOKEN: 'dummy'
         BLUESKY_ACCOUNT_HANDLE: 'dummy'
         BLUESKY_ACCOUNT_APP_PASSWORD: 'dummy'
+        THREADS_USER_ID: 'dummy'
       run: |
         pip install pytest
         export PYTHONPATH=$PYTHONPATH:$(pwd)/lib
