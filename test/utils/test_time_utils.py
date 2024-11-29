@@ -21,14 +21,14 @@ class TimeUtilsTest(unittest.TestCase):
     def test_when_getting_date_range_for_5min_mode_should_return_date_range_for_next_nine_minutes_ish(self):
         d = datetime.datetime(2024, 11, 10, 19, 55, 0)
         [start, end] = resolve_range_from_run_date_and_mode(d, "5min")
-        self.assertEqual(start, datetime.datetime(2024, 11, 10, 19, 55, 1))
+        self.assertEqual(start, datetime.datetime(2024, 11, 10, 19, 56, 1))
         self.assertEqual(end, datetime.datetime(2024, 11, 10, 20, 4, 0))
 
 
     def test_when_getting_another_date_range_for_5min_mode_should_return_date_range_for_next_nine_minutes_ish(self):
         d = datetime.datetime(2024, 11, 10, 19, 54, 35)
         [start, end] = resolve_range_from_run_date_and_mode(d, "5min")
-        self.assertEqual(start, datetime.datetime(2024, 11, 10, 19, 54, 36))
+        self.assertEqual(start, datetime.datetime(2024, 11, 10, 19, 55, 1))
         self.assertEqual(end, datetime.datetime(2024, 11, 10, 20, 3, 0))
 
 
