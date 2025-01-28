@@ -76,13 +76,13 @@ class Generator(ABC):
 
 
     def generate_thread(self, events, is_morning=False):
+        events = sorted(events, key=lambda e: (e['dateTimeCet'], e['country']))
+
         if self.is_single_post(events):
             post = self.generate_single_post(events, is_morning)
             if self.formatter is not None:
                 post = self.formatter.format_post(post, events)
             return [post]
-
-        events = sorted(events, key=lambda e: (e['dateTimeCet'], e['country']))
 
         thread = []
         if self.has_header(events):
