@@ -128,7 +128,8 @@ class LysTest(unittest.TestCase):
                 {'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Heat 2', 'dateTimeCet': '2021-02-13T20:00:00', 'watchLinks': [{'link': 'https://svtplay.se', 'comment': 'Recommended link', 'live': 1}]}
             ],
             "dryRun": True,
-            "target": "twitter"
+            "target": "twitter",
+            "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 5)
@@ -187,7 +188,8 @@ class LysTest(unittest.TestCase):
                 {'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Heat 2', 'dateTimeCet': '2021-02-13T20:00:00', 'watchLinks': [{'link': 'https://svtplay.se', 'comment': 'Recommended link', 'live': 1}]}
             ],
             "dryRun": True,
-            "target": "threads"
+            "target": "threads",
+            "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 5)
@@ -245,7 +247,8 @@ class LysTest(unittest.TestCase):
                 {'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Heat 2', 'dateTimeCet': '2021-02-13T20:00:00', 'watchLinks': [{'link': 'https://svtplay.se', 'comment': 'Recommended link', 'live': 1}]}
             ],
             "dryRun": True,
-            "target": "bluesky"
+            "target": "bluesky",
+            "runDate": "2020-01-01T16:00:00"
         }
 
         mock_requests_resp = MagicMock(text="""

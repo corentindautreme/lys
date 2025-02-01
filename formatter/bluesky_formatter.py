@@ -1,6 +1,7 @@
 import requests
 
 from bs4 import BeautifulSoup
+from requests.exceptions import HTTPError
 
 from formatter.formatter import Formatter
 from utils.watch_link_utils import get_first_watch_link, get_short_url
@@ -101,7 +102,13 @@ class BlueskyFormatter(Formatter):
 
         # fetch the HTML
         resp = requests.get(url)
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except HTTPError as e:
+            print(f"Unable to generate URL card for {url}")
+            print(e)
+            return None
+
         soup = BeautifulSoup(resp.text, "html.parser")
 
         # parse out the "og:title" and "og:description" HTML meta tags
@@ -169,7 +176,9 @@ class BlueskyFormatter(Formatter):
         # include a social card to the post only if we have at least one (live) recommended link to provide
         # and, of course, if we want to include a card
         if self.include_link_card and first_link is not None:
-            post["embed"] = self.generate_url_card(first_link)
+            card = self.generate_url_card(first_link)
+            if card is not None:
+                post["embed"] = self.generate_url_card(first_link)
 
         return post
 
