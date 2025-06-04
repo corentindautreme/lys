@@ -50,3 +50,5 @@ def resolve_range_from_run_date_and_mode(run_date, mode):
     else:
         raise RuntimeError("Unknown mode=" + mode)
 
+def is_within_national_final_season(date):
+    return date.month < 3 or (date.month == 3 and date.day < 20) or date.month >= 9

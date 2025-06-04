@@ -22,7 +22,7 @@ from publisher.threads_daily_publisher import ThreadsDailyPublisher
 from publisher.threads_five_minute_publisher import ThreadsFiveMinutePublisher
 from publisher.threads_weekly_publisher import ThreadsWeeklyPublisher
 
-from utils.time_utils import DATETIME_CET_FORMAT, resolve_range_from_run_date_and_mode
+from utils.time_utils import DATETIME_CET_FORMAT, resolve_range_from_run_date_and_mode, is_within_national_final_season
 
 
 def resolve_publisher(mode, target, dry_run=True):
@@ -72,6 +72,10 @@ def main(event, context):
     run_date = datetime.datetime.strptime(event['runDate'], DATETIME_CET_FORMAT) if "runDate" in event else (datetime.datetime.now() + datetime.timedelta(hours=1))
     
     today = run_date
+
+    if not is_within_national_final_season(today):
+        output = ["Run date {} is without NF season range - exiting".format(today.strftime(DATETIME_CET_FORMAT))]
+        return output
 
     try:
         event_date_range = resolve_range_from_run_date_and_mode(run_date, mode)

@@ -25,7 +25,8 @@ class LysTest(unittest.TestCase):
                 }
             ],
             "dryRun": True,
-            "target": "twitter"
+            "target": "twitter",
+            "runDate": "2021-03-13T16:00:00"
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 1)
@@ -76,7 +77,8 @@ class LysTest(unittest.TestCase):
                 }
             ],
             "dryRun": True,
-            "target": "threads"
+            "target": "threads",
+            "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 1)
@@ -88,7 +90,8 @@ class LysTest(unittest.TestCase):
             "mode": "5min",
             "events": [],
             "dryRun": True,
-            "target": "bluesky"
+            "target": "bluesky",
+            "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 1)
@@ -100,7 +103,8 @@ class LysTest(unittest.TestCase):
             "mode": "daily",
             "events": [],
             "dryRun": True,
-            "target": "twitter"
+            "target": "twitter",
+            "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 1)
@@ -112,7 +116,8 @@ class LysTest(unittest.TestCase):
             "mode": "weekly",
             "events": [],
             "dryRun": True,
-            "target": "twitter"
+            "target": "twitter",
+            "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 1)
@@ -150,7 +155,8 @@ class LysTest(unittest.TestCase):
                 {'country': 'Norway', 'name': 'Melodi Grand Prix', 'stage': 'Final', 'dateTimeCet': '2021-02-06T19:50:00', 'watchLinks': [{'link': 'https://nrk.no/mgp', 'comment': 'Recommended link', 'live': 1}]}
             ],
             "dryRun": True,
-            "target": "twitter"
+            "target": "twitter",
+            "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 2)
@@ -169,7 +175,8 @@ class LysTest(unittest.TestCase):
                 {'country': 'Serbia', 'name': 'Beovizija', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLinks': [{'link': 'https://somereallyreallyreallyreallylongurl.rs', 'comment': 'Recommended link', 'live': 1}]}
             ],
             "dryRun": True,
-            "target": "twitter"
+            "target": "twitter",
+            "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 4)
@@ -210,7 +217,8 @@ class LysTest(unittest.TestCase):
                 {'country': 'Norway', 'name': 'Melodi Grand Prix', 'stage': 'Final', 'dateTimeCet': '2021-02-06T19:50:00', 'watchLinks': [{'link': 'https://nrk.no/mgp', 'comment': 'Recommended link', 'live': 1}]}
             ],
             "dryRun": True,
-            "target": "threads"
+            "target": "threads",
+            "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 2)
@@ -229,7 +237,8 @@ class LysTest(unittest.TestCase):
                 {'country': 'Serbia', 'name': 'Beovizija', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLinks': [{'link': 'https://somereallyreallyreallyreallylongurl.rs', 'comment': 'Recommended link', 'live': 1}]}
             ],
             "dryRun": True,
-            "target": "threads"
+            "target": "threads",
+            "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 3)
@@ -280,7 +289,8 @@ class LysTest(unittest.TestCase):
                 {'country': 'Norway', 'name': 'Melodi Grand Prix', 'stage': 'Final', 'dateTimeCet': '2021-02-06T19:50:00', 'watchLinks': [{'link': 'https://nrk.no/mgp', 'comment': 'Recommended link', 'live': 1}]}
             ],
             "dryRun": True,
-            "target": "bluesky"
+            "target": "bluesky",
+            "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 2)
@@ -300,7 +310,8 @@ class LysTest(unittest.TestCase):
                 {'country': 'Serbia', 'name': 'Beovizija', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLinks': [{'link': 'https://somereallyreallyreallyreallylongurl.rs', 'comment': 'Recommended link', 'live': 1}]}
             ],
             "dryRun": True,
-            "target": "bluesky"
+            "target": "bluesky",
+            "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 3)
@@ -309,3 +320,16 @@ class LysTest(unittest.TestCase):
         self.assertEqual(output[1]['text'], "\U0001F6A8 5 MINUTES REMINDER! (thread \U00002B07\U0000FE0F)\n---------\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (svtplay.se)\n---------\n\U0001F1F3\U0001F1F4 Melodi Grand Prix - Final (somereallyreallyreallyreallylongurl.no)\n---------\n\U0001F1EA\U0001F1EA Eesti Laul - Final (somereallyreallyreallyreallylongurl.ee)")
         self.assertTrue(type(output[2]) is dict)
         self.assertEqual(output[2]['text'], "\U0001F6A8 5 MINUTES REMINDER! (cont.)\n---------\n\U0001F1EB\U0001F1EE Uuden Musiikin Kilpailu - Final (somereallyreallyreallyreallylongurl.fi)\n---------\n\U0001F1F7\U0001F1F8 Beovizija - Final (somereallyreallyreallyreallylongurl.rs)")
+    
+
+    def test_when_running_lys_outside_of_nf_season_range_should_return_output_with_message_only(self):
+        event = {
+            "events": [],
+            "dryRun": True,
+            "target": "bluesky",
+            "mode": "daily",
+            "runDate": "2025-03-29T16:00:00"
+        }
+        output = main(event=event, context=None)
+        self.assertEqual(len(output), 1)
+        self.assertEqual(output[0], "Run date 2025-03-29T16:00:00 is without NF season range - exiting")
