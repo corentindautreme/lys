@@ -58,7 +58,7 @@ class LysTest(unittest.TestCase):
         self.assertEqual(output[0], "Error: Unable to do anything for mode=daily and target=None")
 
 
-    def test_when_running_lys_with_unknown_mode_should_fail_at_date_range_resolution_and_return_output_with_error_message_only(self):
+    def test_when_running_lys_with_unknown_mode_should_fail_to_resolve_publisher_and_return_output_with_error_message_only(self):
         event = {
             "mode": "yearly",
             "events": [
@@ -82,7 +82,7 @@ class LysTest(unittest.TestCase):
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 1)
-        self.assertEqual(output[0], "Error: Unable to resolve date range for run with mode=yearly and target=threads - error is: Unknown mode=yearly")
+        self.assertEqual(output[0], "Error: Unable to resolve a publisher - error is: Cannot resolve publisher for mode=yearly and target=threads")
 
 
     def test_when_running_lys_with_mode_5min_and_no_event_should_return_output_with_log_header_only(self):
@@ -322,7 +322,7 @@ class LysTest(unittest.TestCase):
         self.assertEqual(output[2]['text'], "\U0001F6A8 5 MINUTES REMINDER! (cont.)\n---------\n\U0001F1EB\U0001F1EE Uuden Musiikin Kilpailu - Final (somereallyreallyreallyreallylongurl.fi)\n---------\n\U0001F1F7\U0001F1F8 Beovizija - Final (somereallyreallyreallyreallylongurl.rs)")
     
 
-    def test_when_running_lys_outside_of_nf_season_range_should_return_output_with_message_only(self):
+    def test_when_running_lys_outside_of_nf_season_range_should_return_output_with_log_header_and_message(self):
         event = {
             "events": [],
             "dryRun": True,
@@ -331,5 +331,6 @@ class LysTest(unittest.TestCase):
             "runDate": "2025-03-29T16:00:00"
         }
         output = main(event=event, context=None)
-        self.assertEqual(len(output), 1)
-        self.assertEqual(output[0], "Run date 2025-03-29T16:00:00 is without NF season range - exiting")
+        self.assertEqual(len(output), 2)
+        self.assertEqual(output[0], "daily|bluesky")
+        self.assertEqual(output[1], "Run date 2025-03-29T16:00:00 is without NF season range - exiting")

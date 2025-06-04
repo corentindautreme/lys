@@ -68,19 +68,31 @@ def main(event, context):
         output = ["Error: Unable to do anything for mode={} and target={}".format(mode, target)]
         return output
 
+    try:
+        publisher = resolve_publisher(mode, target, dry_run)
+    except RuntimeError as e:
+        output = ["Error: Unable to resolve a publisher - error is: " + str(e)]
+        return output
+
     # override run date with value from the lambda event if present, otherwise default to now()
     run_date = datetime.datetime.strptime(event['runDate'], DATETIME_CET_FORMAT) if "runDate" in event else (datetime.datetime.now() + datetime.timedelta(hours=1))
     
     today = run_date
 
     if not is_within_national_final_season(today):
-        output = ["Run date {} is without NF season range - exiting".format(today.strftime(DATETIME_CET_FORMAT))]
+        output = [publisher.get_log_header(), "Run date {} is without NF season range - exiting".format(today.strftime(DATETIME_CET_FORMAT))]
+
+        for l in output:
+            print(l)
         return output
 
     try:
         event_date_range = resolve_range_from_run_date_and_mode(run_date, mode)
     except RuntimeError as e:
         output = ["Error: Unable to resolve date range for run with mode={} and target={} - error is: {}".format(mode, target, str(e))]
+
+        for l in output:
+            print(l)
         return output
 
     events_start_date = event_date_range[0].strftime(DATETIME_CET_FORMAT)
@@ -95,12 +107,6 @@ def main(event, context):
         events = table.scan(
             FilterExpression=Key('dateTimeCet').between(events_start_date, events_end_date)
         )['Items']
-
-    try:
-        publisher = resolve_publisher(mode, target, dry_run)
-    except RuntimeError as e:
-        output = ["Error: Unable to resolve a publisher - error is: " + str(e)]
-        return output
 
     output = [publisher.get_log_header()]
 
