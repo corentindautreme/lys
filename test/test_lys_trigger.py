@@ -58,7 +58,7 @@ class LysTriggerTest(unittest.TestCase):
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 4)
-        self.assertEqual(output[0], "daily")
+        self.assertEqual(output[0], "daily|trigger")
         self.assertEqual(output[1], "Loaded 1 event(s)")
         self.assertEqual(output[2], "{\"country\": \"Sweden\", \"name\": \"Melodifestivalen\", \"stage\": \"Final\", \"dateTimeCet\": \"2021-03-13T20:00:00\", \"watchLinks\": [{\"link\": \"https://svtplay.se\", \"comment\": \"Recommended link\", \"live\": 1}]}")
         self.assertEqual(output[3], "Dry-run - skipping the triggering of lambdas")
@@ -73,7 +73,7 @@ class LysTriggerTest(unittest.TestCase):
         }
         output = main(event=event, context=None)
         self.assertEqual(len(output), 2)
-        self.assertEqual(output[0], "daily")
+        self.assertEqual(output[0], "daily|trigger")
         self.assertEqual(output[1], "Run date 2025-08-01T16:00:00 is without NF season range - exiting")
 
 
@@ -102,7 +102,7 @@ class LysTriggerTest(unittest.TestCase):
         with patch.object(lys_trigger.lambda_client, 'invoke', return_value=mock_trigger_resp) as mock_req:
             output = main(event=event, context=None)
         self.assertEqual(len(output), 7)
-        self.assertEqual(output[0], "daily")
+        self.assertEqual(output[0], "daily|trigger")
         self.assertEqual(output[1], "Loaded 1 event(s)")
         self.assertEqual(output[2], "{\"country\": \"Sweden\", \"name\": \"Melodifestivalen\", \"stage\": \"Final\", \"dateTimeCet\": \"2021-03-13T20:00:00\", \"watchLinks\": [{\"link\": \"https://svtplay.se\", \"comment\": \"Recommended link\", \"live\": 1}]}")
         self.assertEqual(output[3], "Triggering Lys for mode=daily and target=threads")
