@@ -322,9 +322,8 @@ class LysTest(unittest.TestCase):
         self.assertEqual(output[2]['text'], "\U0001F6A8 5 MINUTES REMINDER! (cont.)\n---------\n\U0001F1EB\U0001F1EE Uuden Musiikin Kilpailu - Final (somereallyreallyreallyreallylongurl.fi)\n---------\n\U0001F1F7\U0001F1F8 Beovizija - Final (somereallyreallyreallyreallylongurl.rs)")
     
 
-    def test_when_running_lys_outside_of_nf_season_range_should_return_output_with_log_header_and_message(self):
+    def test_when_running_lys_outside_of_nf_season_range_without_providing_events_should_return_output_with_log_header_and_message(self):
         event = {
-            "events": [],
             "dryRun": True,
             "target": "bluesky",
             "mode": "daily",

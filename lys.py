@@ -79,28 +79,30 @@ def main(event, context):
     
     today = run_date
 
-    if not is_within_national_final_season(today):
-        output = [publisher.get_log_header(), "Run date {} is without NF season range - exiting".format(today.strftime(DATETIME_CET_FORMAT))]
-
-        for l in output:
-            print(l)
-        return output
-
-    try:
-        event_date_range = resolve_range_from_run_date_and_mode(run_date, mode)
-    except RuntimeError as e:
-        output = ["Error: Unable to resolve date range for run with mode={} and target={} - error is: {}".format(mode, target, str(e))]
-
-        for l in output:
-            print(l)
-        return output
-
-    events_start_date = event_date_range[0].strftime(DATETIME_CET_FORMAT)
-    events_end_date = event_date_range[1].strftime(DATETIME_CET_FORMAT)
-
-    if dry_run and "events" in event:
+    # in the normal flow, the trigger passes the events to this lambda
+    if "events" in event:
         events = event['events']
     else:
+        # if no event was passed to the lambda, fetch them from the database
+        if not is_within_national_final_season(today):
+            output = [publisher.get_log_header(), "Run date {} is without NF season range - exiting".format(today.strftime(DATETIME_CET_FORMAT))]
+
+            for l in output:
+                print(l)
+            return output
+
+        try:
+            event_date_range = resolve_range_from_run_date_and_mode(run_date, mode)
+        except RuntimeError as e:
+            output = ["Error: Unable to resolve date range for run with mode={} and target={} - error is: {}".format(mode, target, str(e))]
+
+            for l in output:
+                print(l)
+            return output
+
+        events_start_date = event_date_range[0].strftime(DATETIME_CET_FORMAT)
+        events_end_date = event_date_range[1].strftime(DATETIME_CET_FORMAT)
+
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('lys_events')
 
@@ -121,7 +123,7 @@ def main(event, context):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Launch Lys for the specified mode and target")
-    parser.add_argument("--dry-run", dest="dry_run", help="Dry run (perform all actions, but the social media client is mocked). True by default", default=True)
+    parser.add_argument("--dry-run", dest="dry_run", help="Dry run (perform all actions, but the social media client is mocked). Injects mocked events. True by default", default=True)
     parser.add_argument("--mode", dest="mode", help="Mode (5min, daily, weekly)")
     parser.add_argument("--target", dest="target", help="Target (twitter, bluesky, threads)")
     args = parser.parse_args()
