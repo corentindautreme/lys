@@ -44,7 +44,7 @@ def main(event, context):
         print("Error: mode is not provided - unable to trigger anything")
         return ["Error: mode is not provided - unable to trigger anything"]
 
-    output = [mode]
+    output = ["{}|trigger".format(mode)]
 
     # override run date with value from the lambda event if present, otherwise default to now()
     run_date = datetime.datetime.strptime(event['runDate'], DATETIME_CET_FORMAT) if "runDate" in event else (datetime.datetime.now() + datetime.timedelta(hours=1))
