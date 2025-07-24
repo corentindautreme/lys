@@ -36,14 +36,16 @@ jobs:
         pip install pytest
         export PYTHONPATH=$PYTHONPATH:$(pwd)/lib
         pytest test/
-    - name: Package (Lys + dump and refresh scripts)
+    - name: Package (Lys (main and trigger) + dump and refresh scripts)
       if: success()
       run: |
         zip -ur lys.zip client/ formatter/ generator/ publisher/ utils/ lys.py
+        zip -ur lys_trigger.zip utils/time_utils.py utils/extraction_utils.py lys_trigger.py
         zip -ur lys_dump.zip utils/extraction_utils.py utils/time_utils.py lys_dump.py
         zip -ur lys_refresh.zip lys_refresh.py
         cd lib
         zip -ur ../lys.zip *
+        zip -ur ../lys_trigger.zip *
         zip -ur ../lys_dump.zip *
         cd ..
         cd lib_refresh
@@ -55,6 +57,15 @@ jobs:
       with:
         package: lys.zip
         function-name: Lys
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_SECRET_ID: ${{ secrets.AWS_SECRET_ID }}
+        AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+    - name: Deploy Lys trigger
+      if: success()
+      uses: stcalica/update-lambda@0.0.2
+      with:
+        package: lys_trigger.zip
+        function-name: LysTrigger
         AWS_REGION: ${{ secrets.AWS_REGION }}
         AWS_SECRET_ID: ${{ secrets.AWS_SECRET_ID }}
         AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
