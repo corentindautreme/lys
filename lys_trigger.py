@@ -2,11 +2,16 @@ import argparse
 import json
 import datetime
 
+class MockLambdaClient():
+    def invoke(self):
+        return
+
 try:
     import boto3
     from boto3.dynamodb.conditions import Key
     lambda_client = boto3.client("lambda")
 except ImportError:
+    lambda_client = MockLambdaClient()
     pass
 
 from utils.time_utils import DATETIME_CET_FORMAT, resolve_range_from_run_date_and_mode, is_within_national_final_season

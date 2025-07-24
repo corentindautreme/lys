@@ -4,7 +4,8 @@ import requests
 
 from unittest.mock import patch, MagicMock
 
-from lys_trigger import main, lambda_client
+from lys_trigger import main
+import lys_trigger
 
 class LysTriggerTest(unittest.TestCase):
     def test_when_running_the_trigger_with_no_mode_should_return_output_with_error_message_only(self):
@@ -98,7 +99,7 @@ class LysTriggerTest(unittest.TestCase):
             "runDate": "2021-03-13T16:00:00"
         }
         mock_trigger_resp = MagicMock(return_value={'StatusCode': 202})
-        with patch.object(lambda_client, 'invoke', return_value=mock_trigger_resp) as mock_req:
+        with patch.object(lys_trigger.lambda_client, 'invoke', return_value=mock_trigger_resp) as mock_req:
             output = main(event=event, context=None)
         self.assertEqual(len(output), 7)
         self.assertEqual(output[0], "daily")
