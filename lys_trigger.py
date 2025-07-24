@@ -5,12 +5,12 @@ import datetime
 try:
     import boto3
     from boto3.dynamodb.conditions import Key
+    lambda_client = boto3.client("lambda")
 except ImportError:
     pass
 
 from utils.time_utils import DATETIME_CET_FORMAT, resolve_range_from_run_date_and_mode, is_within_national_final_season
-
-lambda_client = boto3.client("lambda")
+from utils.extraction_utils import DecimalEncoder
 
 
 def trigger_lys_lambda(mode, target, events):
@@ -20,7 +20,7 @@ def trigger_lys_lambda(mode, target, events):
         response = lambda_client.invoke(
             FunctionName='Lys',
             InvocationType='Event',
-            Payload=json.dumps({"mode": mode, "target": target, "events": events})
+            Payload=json.dumps({"mode": mode, "target": target, "events": events}, cls=DecimalEncoder)
         )
         output.append("Triggered Lys with status={} ({}, {})".format(response['StatusCode'], mode, target))
     except Error as e:
@@ -77,7 +77,7 @@ def main(event, context):
 
     output.append("Loaded {} event(s)".format(len(events)))
 
-    output += map(lambda e: json.dumps(e), events)
+    output += map(lambda e: json.dumps(e, cls=DecimalEncoder), events)
 
     # trigger lambdas
     if dry_run:
@@ -95,6 +95,7 @@ def main(event, context):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Trigger Lys for the specified mode")
     parser.add_argument("--dry-run", dest="dry_run", help="Dry run (performs checks and loads events, but does not trigger lambdas). True by default", default=True)
+    parser.add_argument("--run-date", dest="run_date", help="Override the run date (yyyy-MM-ddTHH:mm:SS)")
     parser.add_argument("--events", dest="events", help="Manual list of events, as a JSON string")
     parser.add_argument("--mode", dest="mode", help="Mode (5min, daily, weekly)")
     parser.add_argument("--targets", dest="targets", help="(optional) Desired targets (twitter, bluesky, threads)")
@@ -104,6 +105,8 @@ if __name__ == '__main__':
         "mode": args.mode,
         "dryRun": args.dry_run
     }
+    if args.run_date is not None:
+        event['runDate'] = args.run_date
     if args.events is not None:
         event['events'] = json.loads(args.events)
     if args.targets is not None:
