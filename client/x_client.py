@@ -2,6 +2,8 @@ import os
 
 import tweepy
 
+from tweepy.errors import TweepyException, HTTPException
+
 from client.social_media_client import SocialMediaClient
 from client.publish_error import PublishError
 
@@ -38,7 +40,7 @@ class XClient(SocialMediaClient):
             else:
                 response = self.session.create_tweet(text=post, in_reply_to_tweet_id=reply_post_id)
             return (response.data['id'], "")
-        except HTTPException as e:
+        except HTTPError as e:
             raise PublishError("Unable to publish post to X", e.api_errors)
         except TweepyException as e:
             raise PublishError("Unable to publish post to X", [str(e)])
