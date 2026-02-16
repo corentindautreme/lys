@@ -29,7 +29,7 @@ class Publisher(ABC):
             try:
                 (reply_post_id, root_post_id) = self.client.publish(post, reply_post_id, root_post_id)
             except PublishError as e:
-                summary.append("Failed to publish " + post + " - " + str(e.errors))
+                summary.append("Failed to publish " + post + ", error is: " + e.message + " - " + str(e.errors))
 
         return summary
 
