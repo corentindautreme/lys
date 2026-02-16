@@ -49,3 +49,17 @@ class ThreadsFiveMinutePublisherTest(unittest.TestCase):
         self.assertEqual(published_posts[0], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (https://svtplay.se)\n---------\n\U0001F1F3\U0001F1F4 Melodi Grand Prithreads - Final (https://somereallyreallyreallyreallylikereallyreallyreallyreallylongurl.no)\n---------\n\U0001F1EA\U0001F1EA Eesti Laul - Final (https://somereallyreallyreallyreallylongurlbutlikereallyreallyreallylong.ee)\n---------\n\U0001F1EB\U0001F1EE Uuden Musiikin Kilpailu - Final (https://somereallyreallyreallyreallylongurl.fi)")
         self.assertTrue(type(published_posts[1]) is str)
         self.assertEqual(published_posts[1], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F7\U0001F1F8 Beovizija - Final (https://somereallyreallyreallyreallylongurl.rs)")
+
+
+    def test_when_calling_five_minute_publisher_with_event_with_link_requiring_account_should_properly_encode_the_anchor_in_the_account_instructions_link(self):
+        events = [
+            {'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Final', 'dateTimeCet': '2021-03-13T20:00:00', 'watchLinks': [{'link': 'https://svtplay.se', 'comment': 'Recommended link', 'live': 1, 'accountRequired': 1}]}
+        ]
+
+        summary = self.publisher.publish(events, run_date=datetime.datetime(1970, 1, 1, 19, 55, 0, 0))
+        self.assertEqual(len(summary), 1)
+        self.assertEqual(summary[0], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (https://svtplay.se (account required: see https://lyseurovision.github.io/help.html%23account-Sweden))")
+
+        published_posts = self.publisher.client.posts
+        self.assertEqual(len(published_posts), 1)
+        self.assertEqual(published_posts[0], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (https://svtplay.se (account required: see https://lyseurovision.github.io/help.html%23account-Sweden))")

@@ -48,4 +48,17 @@ class ThreadsDailyPublisherTest(unittest.TestCase):
         self.assertEqual(published_posts[1], "TONIGHT | \U0001F1E6\U0001F1FA AUSTRALIA\n---------\n\U0001F4FC Australia Decides\n\U0001F3C6 Final\n\U0001F553 10:30 CET\n---------\n\U0001F4FA https://facebook.com.")
         self.assertEqual(published_posts[2], "TONIGHT | \U0001F1F3\U0001F1F4 NORWAY\n---------\n\U0001F4FC Melodi Grand Prithreads\n\U0001F3C6 Heat 5\n\U0001F553 19:50 CET\n---------\n\U0001F4FA https://nrk.no/mgp.")
         self.assertEqual(published_posts[3], "TONIGHT | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Heat 2\n\U0001F553 20:00 CET\n---------\n\U0001F4FA https://svtplay.se.")
-        
+
+
+    def test_when_calling_daily_publisher_with_event_with_link_requiring_account_should_properly_encode_the_anchor_in_the_account_instructions_link(self):
+        events = [
+            {'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Heat 2', 'dateTimeCet': '2021-02-13T20:00:00', 'watchLinks': [{'link': 'https://svtplay.se', 'comment': 'Recommended link', 'live': 1, 'accountRequired': 1}]}
+        ]
+
+        summary = self.publisher.publish(events, run_date=datetime.datetime(1970, 1, 1, 16, 0, 0, 0))
+        self.assertEqual(len(summary), 1)
+        self.assertEqual(summary[0], "TONIGHT | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Heat 2\n\U0001F553 20:00 CET\n---------\n\U0001F4FA https://svtplay.se (account required: see https://lyseurovision.github.io/help.html%23account-Sweden).")
+
+        published_posts = self.publisher.client.posts
+        self.assertEqual(len(published_posts), 1)
+        self.assertEqual(published_posts[0], "TONIGHT | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Heat 2\n\U0001F553 20:00 CET\n---------\n\U0001F4FA https://svtplay.se (account required: see https://lyseurovision.github.io/help.html%23account-Sweden).")
