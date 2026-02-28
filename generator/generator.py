@@ -1,4 +1,5 @@
 import re
+import urllib.parse
 
 from abc import ABC, abstractmethod
 from utils.post_utils import CASSETTE_EMOJI, TROPHY_EMOJI, CLOCK_EMOJI, TV_EMOJI
@@ -14,7 +15,7 @@ class Generator(ABC):
 
     def get_single_watch_link_string(self, watch_link, country, include_comments=True):
         has_comment = False
-        watch_link_string = get_short_url(watch_link['link']) if self.shorten_urls else watch_link['link']
+        watch_link_string = get_short_url(watch_link['link']) if self.shorten_urls else urllib.parse.quote(watch_link['link']).replace("%3A//", "://")
         if include_comments and "comment" in watch_link and watch_link['comment'] != "" and watch_link['comment'] != "Recommended link":
             watch_link_string += " (" + watch_link['comment'] + ")"
             has_comment = True
