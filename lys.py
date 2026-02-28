@@ -85,7 +85,7 @@ def main(event, context):
     else:
         # if no event was passed to the lambda, fetch them from the database
         if not is_within_national_final_season(today):
-            output = [publisher.get_log_header(), "Run date {} is without NF season range - exiting".format(today.strftime(DATETIME_CET_FORMAT))]
+            output = ["Run date {} is without NF season range - exiting".format(today.strftime(DATETIME_CET_FORMAT))]
 
             for l in output:
                 print(l)
@@ -110,7 +110,8 @@ def main(event, context):
             FilterExpression=Key('dateTimeCet').between(events_start_date, events_end_date)
         )['Items']
 
-    output = [publisher.get_log_header()]
+    print(publisher.get_log_header())
+    output = []
 
     if len(events) > 0:
         output += publisher.publish(events, run_date)

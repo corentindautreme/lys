@@ -85,7 +85,7 @@ class LysTest(unittest.TestCase):
         self.assertEqual(output[0], "Error: Unable to resolve a publisher - error is: Cannot resolve publisher for mode=yearly and target=threads")
 
 
-    def test_when_running_lys_with_mode_5min_and_no_event_should_return_output_with_log_header_only(self):
+    def test_when_running_lys_with_mode_5min_and_no_event_should_return_empty_output(self):
         event = {
             "mode": "5min",
             "events": [],
@@ -94,11 +94,10 @@ class LysTest(unittest.TestCase):
             "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
-        self.assertEqual(len(output), 1)
-        self.assertEqual(output[0], "5min|bluesky")
+        self.assertEqual(len(output), 0)
 
         
-    def test_when_running_lys_with_mode_daily_and_no_event_should_return_output_with_log_header_only(self):
+    def test_when_running_lys_with_mode_daily_and_no_event_should_return_empty_output(self):
         event = {
             "mode": "daily",
             "events": [],
@@ -107,11 +106,10 @@ class LysTest(unittest.TestCase):
             "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
-        self.assertEqual(len(output), 1)
-        self.assertEqual(output[0], "daily|twitter")
+        self.assertEqual(len(output), 0)
 
         
-    def test_when_running_lys_with_mode_weekly_and_no_event_should_return_output_with_log_header_only(self):
+    def test_when_running_lys_with_mode_weekly_and_no_event_should_return_empty_output(self):
         event = {
             "mode": "weekly",
             "events": [],
@@ -120,11 +118,10 @@ class LysTest(unittest.TestCase):
             "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
-        self.assertEqual(len(output), 1)
-        self.assertEqual(output[0], "weekly|twitter")
+        self.assertEqual(len(output), 0)
 
         
-    def test_when_running_lys_with_mode_daily_target_twitter_should_return_output_with_log_header_and_published_posts(self):
+    def test_when_running_lys_with_mode_daily_target_twitter_should_return_output_with_published_posts(self):
         event = {
             "mode": "daily",
             "events": [
@@ -137,15 +134,14 @@ class LysTest(unittest.TestCase):
             "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
-        self.assertEqual(len(output), 5)
-        self.assertEqual(output[0], "daily|twitter")
-        self.assertEqual(output[1], "TONIGHT | 3 selection shows across Europe and Australia! (thread \U00002B07\U0000FE0F)")
-        self.assertEqual(output[2], "TONIGHT | \U0001F1E6\U0001F1FA AUSTRALIA\n---------\n\U0001F4FC Australia Decides\n\U0001F3C6 Final\n\U0001F553 10:30 CET\n---------\n\U0001F4FA https://facebook.com.")
-        self.assertEqual(output[3], "TONIGHT | \U0001F1F3\U0001F1F4 NORWAY\n---------\n\U0001F4FC Melodi Grand Prix\n\U0001F3C6 Heat 5\n\U0001F553 19:50 CET\n---------\n\U0001F4FA https://nrk.no/mgp.")
-        self.assertEqual(output[4], "TONIGHT | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Heat 2\n\U0001F553 20:00 CET\n---------\n\U0001F4FA https://svtplay.se.")
+        self.assertEqual(len(output), 4)
+        self.assertEqual(output[0], "TONIGHT | 3 selection shows across Europe and Australia! (thread \U00002B07\U0000FE0F)")
+        self.assertEqual(output[1], "TONIGHT | \U0001F1E6\U0001F1FA AUSTRALIA\n---------\n\U0001F4FC Australia Decides\n\U0001F3C6 Final\n\U0001F553 10:30 CET\n---------\n\U0001F4FA https://facebook.com.")
+        self.assertEqual(output[2], "TONIGHT | \U0001F1F3\U0001F1F4 NORWAY\n---------\n\U0001F4FC Melodi Grand Prix\n\U0001F3C6 Heat 5\n\U0001F553 19:50 CET\n---------\n\U0001F4FA https://nrk.no/mgp.")
+        self.assertEqual(output[3], "TONIGHT | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Heat 2\n\U0001F553 20:00 CET\n---------\n\U0001F4FA https://svtplay.se.")
 
         
-    def test_when_running_lys_with_mode_weekly_target_twitter_should_return_output_with_log_header_and_published_post(self):
+    def test_when_running_lys_with_mode_weekly_target_twitter_should_return_output_with_published_post(self):
         event = {
             "mode": "weekly",
             "events": [
@@ -159,12 +155,11 @@ class LysTest(unittest.TestCase):
             "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
-        self.assertEqual(len(output), 2)
-        self.assertEqual(output[0], "weekly|twitter")
-        self.assertEqual(output[1], "\U0001F5D3 COMING UP NEXT WEEK (* = final):\n\n - Tuesday 02: \U0001F1EA\U0001F1EA\n - Saturday 06: \U0001F1F3\U0001F1F4*\U0001F1F8\U0001F1EA")
+        self.assertEqual(len(output), 1)
+        self.assertEqual(output[0], "\U0001F5D3 COMING UP NEXT WEEK (* = final):\n\n - Tuesday 02: \U0001F1EA\U0001F1EA\n - Saturday 06: \U0001F1F3\U0001F1F4*\U0001F1F8\U0001F1EA")
         
 
-    def test_when_running_lys_with_mode_5min_target_twitter_should_return_output_with_log_header_and_published_posts(self):
+    def test_when_running_lys_with_mode_5min_target_twitter_should_return_output_with_published_posts(self):
         event = {
             "mode": "5min",
             "events": [
@@ -179,14 +174,13 @@ class LysTest(unittest.TestCase):
             "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
-        self.assertEqual(len(output), 4)
-        self.assertEqual(output[0], "5min|twitter")
-        self.assertEqual(output[1], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (https://svtplay.se)\n---------\n\U0001F1F3\U0001F1F4 Melodi Grand Prix - Final (https://somereallyreallyreallyreallylongurl.no)")
-        self.assertEqual(output[2], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1EA\U0001F1EA Eesti Laul - Final (https://somereallyreallyreallyreallylongurl.ee)\n---------\n\U0001F1EB\U0001F1EE Uuden Musiikin Kilpailu - Final (https://somereallyreallyreallyreallylongurl.fi)")
-        self.assertEqual(output[3], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F7\U0001F1F8 Beovizija - Final (https://somereallyreallyreallyreallylongurl.rs)")
+        self.assertEqual(len(output), 3)
+        self.assertEqual(output[0], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (https://svtplay.se)\n---------\n\U0001F1F3\U0001F1F4 Melodi Grand Prix - Final (https://somereallyreallyreallyreallylongurl.no)")
+        self.assertEqual(output[1], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1EA\U0001F1EA Eesti Laul - Final (https://somereallyreallyreallyreallylongurl.ee)\n---------\n\U0001F1EB\U0001F1EE Uuden Musiikin Kilpailu - Final (https://somereallyreallyreallyreallylongurl.fi)")
+        self.assertEqual(output[2], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F7\U0001F1F8 Beovizija - Final (https://somereallyreallyreallyreallylongurl.rs)")
 
         
-    def test_when_running_lys_with_mode_daily_target_threads_should_return_output_with_log_header_and_published_posts(self):
+    def test_when_running_lys_with_mode_daily_target_threads_should_return_output_with_published_posts(self):
         event = {
             "mode": "daily",
             "events": [
@@ -199,15 +193,14 @@ class LysTest(unittest.TestCase):
             "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
-        self.assertEqual(len(output), 5)
-        self.assertEqual(output[0], "daily|threads")
-        self.assertEqual(output[1], "TONIGHT | 3 selection shows across Europe and Australia! (thread \U00002B07\U0000FE0F)")
-        self.assertEqual(output[2], "TONIGHT | \U0001F1E6\U0001F1FA AUSTRALIA\n---------\n\U0001F4FC Australia Decides\n\U0001F3C6 Final\n\U0001F553 10:30 CET\n---------\n\U0001F4FA https://facebook.com.")
-        self.assertEqual(output[3], "TONIGHT | \U0001F1F3\U0001F1F4 NORWAY\n---------\n\U0001F4FC Melodi Grand Prix\n\U0001F3C6 Heat 5\n\U0001F553 19:50 CET\n---------\n\U0001F4FA https://nrk.no/mgp.")
-        self.assertEqual(output[4], "TONIGHT | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Heat 2\n\U0001F553 20:00 CET\n---------\n\U0001F4FA https://svtplay.se.")
+        self.assertEqual(len(output), 4)
+        self.assertEqual(output[0], "TONIGHT | 3 selection shows across Europe and Australia! (thread \U00002B07\U0000FE0F)")
+        self.assertEqual(output[1], "TONIGHT | \U0001F1E6\U0001F1FA AUSTRALIA\n---------\n\U0001F4FC Australia Decides\n\U0001F3C6 Final\n\U0001F553 10:30 CET\n---------\n\U0001F4FA https://facebook.com.")
+        self.assertEqual(output[2], "TONIGHT | \U0001F1F3\U0001F1F4 NORWAY\n---------\n\U0001F4FC Melodi Grand Prix\n\U0001F3C6 Heat 5\n\U0001F553 19:50 CET\n---------\n\U0001F4FA https://nrk.no/mgp.")
+        self.assertEqual(output[3], "TONIGHT | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Heat 2\n\U0001F553 20:00 CET\n---------\n\U0001F4FA https://svtplay.se.")
 
         
-    def test_when_running_lys_with_mode_weekly_target_threads_should_return_output_with_log_header_and_published_post(self):
+    def test_when_running_lys_with_mode_weekly_target_threads_should_return_output_with_published_post(self):
         event = {
             "mode": "weekly",
             "events": [
@@ -221,12 +214,11 @@ class LysTest(unittest.TestCase):
             "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
-        self.assertEqual(len(output), 2)
-        self.assertEqual(output[0], "weekly|threads")
-        self.assertEqual(output[1], "\U0001F5D3 COMING UP NEXT WEEK (* = final):\n\n - Tuesday 02: \U0001F1EA\U0001F1EA\n - Saturday 06: \U0001F1F3\U0001F1F4*\U0001F1F8\U0001F1EA")
+        self.assertEqual(len(output), 1)
+        self.assertEqual(output[0], "\U0001F5D3 COMING UP NEXT WEEK (* = final):\n\n - Tuesday 02: \U0001F1EA\U0001F1EA\n - Saturday 06: \U0001F1F3\U0001F1F4*\U0001F1F8\U0001F1EA")
         
 
-    def test_when_running_lys_with_mode_5min_target_threads_should_return_output_with_log_header_and_published_posts(self):
+    def test_when_running_lys_with_mode_5min_target_threads_should_return_output_with_published_posts(self):
         event = {
             "mode": "5min",
             "events": [
@@ -241,13 +233,12 @@ class LysTest(unittest.TestCase):
             "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
-        self.assertEqual(len(output), 3)
-        self.assertEqual(output[0], "5min|threads")
-        self.assertEqual(output[1], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (https://svtplay.se)\n---------\n\U0001F1F3\U0001F1F4 Melodi Grand Prix - Final (https://somereallyreallyreallyreallylikereallyreallyreallyreallylongurl.no)\n---------\n\U0001F1EA\U0001F1EA Eesti Laul - Final (https://somereallyreallyreallyreallylongurlbutlikereallyreallyreallylong.ee)\n---------\n\U0001F1EB\U0001F1EE Uuden Musiikin Kilpailu - Final (https://somereallyreallyreallyreallylongurl.fi)")
-        self.assertEqual(output[2], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F7\U0001F1F8 Beovizija - Final (https://somereallyreallyreallyreallylongurl.rs)")
+        self.assertEqual(len(output), 2)
+        self.assertEqual(output[0], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (https://svtplay.se)\n---------\n\U0001F1F3\U0001F1F4 Melodi Grand Prix - Final (https://somereallyreallyreallyreallylikereallyreallyreallyreallylongurl.no)\n---------\n\U0001F1EA\U0001F1EA Eesti Laul - Final (https://somereallyreallyreallyreallylongurlbutlikereallyreallyreallylong.ee)\n---------\n\U0001F1EB\U0001F1EE Uuden Musiikin Kilpailu - Final (https://somereallyreallyreallyreallylongurl.fi)")
+        self.assertEqual(output[1], "\U0001F6A8 5 MINUTES REMINDER!\n---------\n\U0001F1F7\U0001F1F8 Beovizija - Final (https://somereallyreallyreallyreallylongurl.rs)")
 
         
-    def test_when_running_lys_with_mode_daily_target_bluesky_should_return_output_with_log_header_and_published_posts(self):
+    def test_when_running_lys_with_mode_daily_target_bluesky_should_return_output_with_published_posts(self):
         event = {
             "mode": "daily",
             "events": [
@@ -267,19 +258,18 @@ class LysTest(unittest.TestCase):
         with patch.object(requests, 'get', return_value=mock_requests_resp) as mock_req:
             output = main(event=event, context=None)
 
-        self.assertEqual(len(output), 5)
-        self.assertEqual(output[0], "daily|bluesky")
+        self.assertEqual(len(output), 4)
+        self.assertTrue(type(output[0]) is dict)
+        self.assertEqual(output[0]['text'], "TONIGHT | 3 selection shows across Europe and Australia! (thread \U00002B07\U0000FE0F)")
         self.assertTrue(type(output[1]) is dict)
-        self.assertEqual(output[1]['text'], "TONIGHT | 3 selection shows across Europe and Australia! (thread \U00002B07\U0000FE0F)")
+        self.assertEqual(output[1]['text'], "TONIGHT | \U0001F1E6\U0001F1FA AUSTRALIA\n---------\n\U0001F4FC Australia Decides\n\U0001F3C6 Final\n\U0001F553 10:30 CET\n---------\n\U0001F4FA facebook.com.")
         self.assertTrue(type(output[2]) is dict)
-        self.assertEqual(output[2]['text'], "TONIGHT | \U0001F1E6\U0001F1FA AUSTRALIA\n---------\n\U0001F4FC Australia Decides\n\U0001F3C6 Final\n\U0001F553 10:30 CET\n---------\n\U0001F4FA facebook.com.")
+        self.assertEqual(output[2]['text'], "TONIGHT | \U0001F1F3\U0001F1F4 NORWAY\n---------\n\U0001F4FC Melodi Grand Prix\n\U0001F3C6 Heat 5\n\U0001F553 19:50 CET\n---------\n\U0001F4FA nrk.no.")
         self.assertTrue(type(output[3]) is dict)
-        self.assertEqual(output[3]['text'], "TONIGHT | \U0001F1F3\U0001F1F4 NORWAY\n---------\n\U0001F4FC Melodi Grand Prix\n\U0001F3C6 Heat 5\n\U0001F553 19:50 CET\n---------\n\U0001F4FA nrk.no.")
-        self.assertTrue(type(output[4]) is dict)
-        self.assertEqual(output[4]['text'], "TONIGHT | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Heat 2\n\U0001F553 20:00 CET\n---------\n\U0001F4FA svtplay.se.")
+        self.assertEqual(output[3]['text'], "TONIGHT | \U0001F1F8\U0001F1EA SWEDEN\n---------\n\U0001F4FC Melodifestivalen\n\U0001F3C6 Heat 2\n\U0001F553 20:00 CET\n---------\n\U0001F4FA svtplay.se.")
         
         
-    def test_when_running_lys_with_mode_weekly_target_bluesky_should_return_output_with_log_header_and_published_post(self):
+    def test_when_running_lys_with_mode_weekly_target_bluesky_should_return_output_with_published_post(self):
         event = {
             "mode": "weekly",
             "events": [
@@ -293,13 +283,12 @@ class LysTest(unittest.TestCase):
             "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
-        self.assertEqual(len(output), 2)
-        self.assertEqual(output[0], "weekly|bluesky")
-        self.assertTrue(type(output[1]) is dict)
-        self.assertEqual(output[1]['text'], "\U0001F5D3 COMING UP NEXT WEEK (* = final):\n\n - Tuesday 02: \U0001F1EA\U0001F1EA\n - Saturday 06: \U0001F1F3\U0001F1F4*\U0001F1F8\U0001F1EA")
+        self.assertEqual(len(output), 1)
+        self.assertTrue(type(output[0]) is dict)
+        self.assertEqual(output[0]['text'], "\U0001F5D3 COMING UP NEXT WEEK (* = final):\n\n - Tuesday 02: \U0001F1EA\U0001F1EA\n - Saturday 06: \U0001F1F3\U0001F1F4*\U0001F1F8\U0001F1EA")
         
 
-    def test_when_running_lys_with_mode_5min_target_bluesky_should_return_output_with_log_header_and_published_posts(self):
+    def test_when_running_lys_with_mode_5min_target_bluesky_should_return_output_with_published_posts(self):
         event = {
             "mode": "5min",
             "events": [
@@ -314,15 +303,14 @@ class LysTest(unittest.TestCase):
             "runDate": "2020-01-01T16:00:00"
         }
         output = main(event=event, context=None)
-        self.assertEqual(len(output), 3)
-        self.assertEqual(output[0], "5min|bluesky")
+        self.assertEqual(len(output), 2)
+        self.assertTrue(type(output[0]) is dict)
+        self.assertEqual(output[0]['text'], "\U0001F6A8 5 MINUTES REMINDER! (thread \U00002B07\U0000FE0F)\n---------\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (svtplay.se)\n---------\n\U0001F1F3\U0001F1F4 Melodi Grand Prix - Final (somereallyreallyreallyreallylongurl.no)\n---------\n\U0001F1EA\U0001F1EA Eesti Laul - Final (somereallyreallyreallyreallylongurl.ee)")
         self.assertTrue(type(output[1]) is dict)
-        self.assertEqual(output[1]['text'], "\U0001F6A8 5 MINUTES REMINDER! (thread \U00002B07\U0000FE0F)\n---------\n\U0001F1F8\U0001F1EA Melodifestivalen - Final (svtplay.se)\n---------\n\U0001F1F3\U0001F1F4 Melodi Grand Prix - Final (somereallyreallyreallyreallylongurl.no)\n---------\n\U0001F1EA\U0001F1EA Eesti Laul - Final (somereallyreallyreallyreallylongurl.ee)")
-        self.assertTrue(type(output[2]) is dict)
-        self.assertEqual(output[2]['text'], "\U0001F6A8 5 MINUTES REMINDER! (cont.)\n---------\n\U0001F1EB\U0001F1EE Uuden Musiikin Kilpailu - Final (somereallyreallyreallyreallylongurl.fi)\n---------\n\U0001F1F7\U0001F1F8 Beovizija - Final (somereallyreallyreallyreallylongurl.rs)")
+        self.assertEqual(output[1]['text'], "\U0001F6A8 5 MINUTES REMINDER! (cont.)\n---------\n\U0001F1EB\U0001F1EE Uuden Musiikin Kilpailu - Final (somereallyreallyreallyreallylongurl.fi)\n---------\n\U0001F1F7\U0001F1F8 Beovizija - Final (somereallyreallyreallyreallylongurl.rs)")
     
 
-    def test_when_running_lys_outside_of_nf_season_range_without_providing_events_should_return_output_with_log_header_and_message(self):
+    def test_when_running_lys_outside_of_nf_season_range_without_providing_events_should_return_output_with_message(self):
         event = {
             "dryRun": True,
             "target": "bluesky",
@@ -330,6 +318,5 @@ class LysTest(unittest.TestCase):
             "runDate": "2025-03-29T16:00:00"
         }
         output = main(event=event, context=None)
-        self.assertEqual(len(output), 2)
-        self.assertEqual(output[0], "daily|bluesky")
-        self.assertEqual(output[1], "Run date 2025-03-29T16:00:00 is without NF season range - exiting")
+        self.assertEqual(len(output), 1)
+        self.assertEqual(output[0], "Run date 2025-03-29T16:00:00 is without NF season range - exiting")
