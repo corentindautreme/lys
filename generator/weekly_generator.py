@@ -27,7 +27,7 @@ class WeeklyGenerator(Generator):
 
     def generate_single_post(self, events, is_morning):
         # list of (weekday, country) tuples
-        simplified_events = list(map(lambda e: (extract_weekday_and_day_from_timestamp_string(e['dateTimeCet']), e['country'] + ('*' if "Final" in e['stage'] else '')), events))
+        simplified_events = list(map(lambda e: (extract_weekday_and_day_from_timestamp_string(e['dateTimeCet']), e['country'] + ('*' if "Final" in e['stage'] or "Eurovision Night" in e['stage'] else '')), events))
         # indicates if any event is a final
         includes_final = False
 
@@ -47,6 +47,7 @@ class WeeklyGenerator(Generator):
         for weekday in calendar.keys():
             # building flag emojis list
             flags = ""
+            # countries sorted alphabetically by name
             for c in sorted(list(calendar[weekday])):
                 final = '*' in c
                 country = c.replace('*', '')
