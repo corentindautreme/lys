@@ -50,6 +50,17 @@ class WeeklyGeneratorTest(unittest.TestCase):
         self.assertEqual(thread[0], "\U0001F5D3 COMING UP NEXT WEEK (* = final):\n\n - Tuesday 02: \U0001F1EA\U0001F1EA\n - Saturday 06: \U0001F1F3\U0001F1F4*\U0001F1F8\U0001F1EA")
 
 
+    def test_when_events_include_a_eurovision_night_then_post_should_contain_final_indicators(self):
+        events = [
+            {'country': 'Estonia', 'name': 'Eesti Laul', 'stage': 'Semi-final 1', 'dateTimeCet': '2021-02-02T20:00:00', 'watchLinks': [{'link': 'https://err.tv', 'comment': 'Recommended link', 'live': 1}]},
+            {'country': 'Sweden', 'name': 'Melodifestivalen', 'stage': 'Heat 1', 'dateTimeCet': '2021-02-06T20:00:00', 'watchLinks': [{'link': 'https://svtplay.se', 'comment': 'Recommended link', 'live': 1}]},
+            {'country': 'Italy', 'name': 'Festival di Sanremo', 'stage': 'Eurovision Night', 'dateTimeCet': '2021-02-06T20:40:00', 'watchLinks': [{'link': 'https://rai.it', 'comment': 'Recommended link', 'live': 1}]}
+        ]
+        thread = self.generator.generate_thread(events)
+        self.assertEqual(len(thread), 1)
+        self.assertEqual(thread[0], "\U0001F5D3 COMING UP NEXT WEEK (* = final):\n\n - Tuesday 02: \U0001F1EA\U0001F1EA\n - Saturday 06: \U0001F1EE\U0001F1F9*\U0001F1F8\U0001F1EA")
+
+
     def test_when_events_include_country_without_known_flag_should_replace_by_country_name(self):
         events = [
             {'country': 'Estonia', 'name': 'Eesti Laul', 'stage': 'Semi-final 1', 'dateTimeCet': '2021-02-02T20:00:00', 'watchLinks': [{'link': 'https://err.tv', 'comment': 'Recommended link', 'live': 1}]},
